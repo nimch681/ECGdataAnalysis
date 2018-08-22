@@ -65,7 +65,7 @@ WAVEVERSION = 6.12
 
 PACKAGE = wfdb-10.6.0
 SRCDIR = "/home/chontira/Documents/git_projects/ECGdataAnalysis/wfdb/wfdb-10.6.0"
-LONGDATE = 21 August 2018
+LONGDATE = 22 August 2018
 SHORTDATE = AUGUST 2018
 YEAR = 2018
 ARCH = x86_64-Linux
