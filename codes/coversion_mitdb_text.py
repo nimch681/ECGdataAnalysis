@@ -6,21 +6,20 @@ from os.path import isfile, isdir, join, exists
 import os
 os.getcwd()
 
-dir = '/database/mitdb/'
+dir = '/home/nimch681/Documents/git_projects/ECGdataAnalysis/database/mitdb/'
 #Create folder
 dir_out = dir + 'csv/'
 if not exists(dir_out):
 	mkdir(dir_out)
 
-records = [f for f in listdir(dir) if isfile(join(dir, f)) if(f.find('.dat') != -1)]
+#records = [f for f in listdir(dir) if isfile(join(dir, f)) if(f.find('.dat') != -1)]
 #print records
 
-for r in records:
-
-	command = 'rdsamp -r ' + dir + r[:-4] + ' -c -H -f 0 -v >' + dir_out + r[:-4] + '.csv'
+for r in range(100,110):
+	command = 'rdsamp -r mitdb/'  +r+ ' -c -H -f 0 -60 -v -ps >' + r + '.csv'
 	print(command)
 	system(command)
 
-	command_annotations = 'rdann -r ' + dir + r[:-4] +' -f 0 -a atr -v >' + dir_out + r[:-4] + '.ann'
+	command_annotations = 'rdann -r mitdb/'  +r+ ' -c -H -f 0 -60 -v -ps >' + r +'.text'
 	print(command_annotations)
 	system(command_annotations)
