@@ -13,12 +13,18 @@ import os
 #records = [f for f in listdir(dir) if isfile(join(dir, f)) if(f.find('.dat') != -1)]
 #print records
 
-for r in range(100,110):
+for r in range(230,235):
+
 
 	command = 'rdsamp -r mitdb/' +str(r)+ ' -c -H -f 0 -t 60 -v -ps >' + str(r) + '.csv'
 	print(command)
 	system(command)
 
-	command_annotations = 'rdann -r mitdb/' +str(r)+' -f 0 -a atr -v >' +str(r)+ '.ann'
+	command_annotations = 'rdann -r mitdb/' +str(r)+' -f 0 -t 1805.556 -a atr -v -x >' +str(r)+ '.text'
 	print(command_annotations)
 	system(command_annotations)
+
+	command_annotations = 'rdann -r mitdb/' +str(r)+' -f 0 -t 1805.556 -a atr -v -x >' +str(r)+ '.ann'
+	print(command_annotations)
+	system(command_annotations)
+
