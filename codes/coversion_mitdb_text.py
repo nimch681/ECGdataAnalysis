@@ -5,6 +5,7 @@ from os import listdir, mkdir, system
 from os.path import isfile, isdir, join, exists
 import os
 #dir = 'database/mitdb/'
+
 #Create folder
 #dir_out = dir + 'csv/'
 #if not exists(dir_out):
