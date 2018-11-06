@@ -520,7 +520,7 @@ def load_signal(DS, winL, winR, do_preprocess):
 
         # 2. Read annotations
         filename = pathDB + DB_name + "/csv/" + fAnnotations[r]
-        print filename
+        print(filename)
         f = open(filename, 'rb')
         next(f) # skip first line!
 
