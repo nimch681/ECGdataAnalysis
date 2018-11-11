@@ -1,5 +1,20 @@
+"""
+load_MITBIH.py
+
+Download .csv files and annotations from:
+    kaggle.com/mondejar/mitbih-database
+
+VARPA, University of Coruna
+Mondejar Guerra, Victor M.
+23 Oct 2017
+"""
+
+import os
+import csv
+import gc
 import numpy as np
 import scipy as sp
+import pickle as pk
 
 from os import listdir, mkdir, system
 from os.path import isfile, isdir, join, exists
@@ -7,17 +22,63 @@ import wfdb
 import pandas as pd
 import os
 
+import matplotlib.pyplot as plt
+from scipy.signal import medfilt
+import scipy.stats
+import pywt
+import time
+import sklearn
+from sklearn import decomposition
+from sklearn.decomposition import PCA, IncrementalPCA
 
-headers = ['time','MlII','V5']
-mit100 = pd.read_csv("C:\\Users\\nimch681\\Documents\\git_projects\\ECGdataAnalysis\\database\\mitdb\\csv\\100.csv", names=headers)
+from numpy.polynomial.hermite import hermfit, hermval
 
 
-mit100['time'] = mit100['time'].map(lambda x: datetime.strptime(str(x), '%Y/%m/%d %H:%M:%S.%f'))
-x = df['time',]
-y = df['MlII']
+#headers = ['time','MlII','V5']
+#mit100 = pd.read_csv("C:\\Users\\nimch681\\Documents\\git_projects\\ECGdataAnalysis\\database\\mitdb\\csv\\100.csv", names=headers)
 
 
+#mit100['time'] = mit100['time'].map(lambda x: datetime.strptime(str(x), '%Y/%m/%d %H:%M:%S.%f'))
+#x = df['time',]
+#y = df['MlII']
 
+
+def create_features_labels_name(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_morph, db_path, reduced_DS, leads_flag):
+    
+    features_labels_name = db_path + 'features/' + 'w_' + str(winL) + '_' + str(winR) + '_' + DS 
+
+    if do_preprocess:
+        features_labels_name += '_rm_bsline'
+
+    if maxRR:
+        features_labels_name += '_maxRR'
+
+    if use_RR:
+        features_labels_name += '_RR'
+    
+    if norm_RR:
+        features_labels_name += '_norm_RR'
+
+    for descp in compute_morph:
+        features_labels_name += '_' + descp
+
+    if reduced_DS:
+        features_labels_name += '_reduced'
+        
+    if leads_flag[0] == 1:
+        features_labels_name += '_MLII'
+
+    if leads_flag[1] == 1:
+        features_labels_name += '_V1'
+
+    features_labels_name += '.p'
+
+    return features_labels_name
+
+
+# DS: contains the patient list for load
+# winL, winR: indicates the size of the window centred at R-peak at left and right side
+# do_preprocess: indicates if preprocesing of remove baseline on signal is performed
 def load_signal(DS, winL, winR, do_preprocess):
 
     class_ID = [[] for i in range(len(DS))]

@@ -14,7 +14,7 @@ Mondejar Guerra, Victor M.
 import os
 import csv
 import gc
-import cPickle as pickle
+import pickle as pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
