@@ -43,37 +43,7 @@ from numpy.polynomial.hermite import hermfit, hermval
 #y = df['MlII']
 
 
-def create_features_labels_name(DS, winL, winR, do_preprocess, maxRR, use_RR, norm_RR, compute_morph, db_path, reduced_DS, leads_flag):
-    
-    features_labels_name = db_path + 'features/' + 'w_' + str(winL) + '_' + str(winR) + '_' + DS 
 
-    if do_preprocess:
-        features_labels_name += '_rm_bsline'
-
-    if maxRR:
-        features_labels_name += '_maxRR'
-
-    if use_RR:
-        features_labels_name += '_RR'
-    
-    if norm_RR:
-        features_labels_name += '_norm_RR'
-
-    for descp in compute_morph:
-        features_labels_name += '_' + descp
-
-    if reduced_DS:
-        features_labels_name += '_reduced'
-        
-    if leads_flag[0] == 1:
-        features_labels_name += '_MLII'
-
-    if leads_flag[1] == 1:
-        features_labels_name += '_V1'
-
-    features_labels_name += '.p'
-
-    return features_labels_name
 
 
 # DS: contains the patient list for load
@@ -98,7 +68,7 @@ def load_signal(DS, winL, winR, do_preprocess):
 
     size_RR_max = 20
 
-    pathDB = '/home/mondejar/dataset/ECG/'
+    pathDB = '/database/'
     DB_name = 'mitdb'
     fs = 360
     jump_lines = 1
@@ -107,7 +77,7 @@ def load_signal(DS, winL, winR, do_preprocess):
     fRecords = list()
     fAnnotations = list()
 
-    lst = os.listdir(pathDB + DB_name + "/csv")
+    lst = os.listdir(os.getcwd()+pathDB + DB_name + "/csv")
     lst.sort()
     for file in lst:
         if file.endswith(".csv"):
@@ -141,7 +111,7 @@ def load_signal(DS, winL, winR, do_preprocess):
         next(reader) # skip first line!
         MLII_index = 1
         V1_index = 2
-        if int(fRecords[r][0:3]) == 114:
+        if int(fRecords[r][][0:3]) == 114:
             MLII_index = 2
             V1_index = 1
 
@@ -189,7 +159,7 @@ def load_signal(DS, winL, winR, do_preprocess):
 
 
         # Extract the R-peaks from annotations
-        for a in annotations:
+        for a in  :
             aS = a.split()
             
             pos = int(aS[1])
