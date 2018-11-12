@@ -1,4 +1,4 @@
-pathDB = '/database/'
+pathDB = os.getcwd()+'/database/'
 DB_name = 'mitdb'
 fs = 360
 jump_lines = 1
@@ -7,7 +7,7 @@ jump_lines = 1
 fRecords = list()
 fAnnotations = list()
 
-lst = os.listdir(os.getcwd()+pathDB + DB_name + "/csv")
+lst = os.listdir(pathDB + DB_name + "/csv")
 lst.sort()
 fRecords = list()
 fAnnotations = list()
@@ -28,10 +28,3 @@ AAMI_classes.append(['F'])                              # F
 
 RAW_signals = []
 r_index = 0
-for r in range(0, len(fRecords)):
-
-    print("Processing signal " + str(r) + " / " + str(len(fRecords)) + "...")
-
-    # 1. Read signalR_poses
-    filename = os.getcwd()+pathDB + DB_name + "/csv/" + fRecords[r]
-    print (filename)
