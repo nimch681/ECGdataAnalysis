@@ -5,7 +5,7 @@ Started in July 2018.
 Purpose for the project was to learn and improve on aspects of current ECG analysis techniques. 
 
 Referece softwares:
-WFDB from PhysioNet
+WFDB from PhysioNet and https://github.com/mondejar/ecg-classification
 
 Referecne papers:
 
