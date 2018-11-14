@@ -26,14 +26,32 @@ class RR_intervals:
         self.post_R = np.array([])
         self.local_R = np.array([])
         self.global_R = np.array([])
+
         
-class mit_db:
-    def __init__(self):
+
+class Patient_record:
+    def __init__(self,filename, database):
+        self.database = database
+        self.filename = filename
+        self.time = []
+        self.MLII = []
+        self.denoisedMLII = []
+        self.V1 = []
+        self.denoisedV1 = []
+        self.annotations = []
+
+  
+
+class ecg_database:
+    def __init__(self, database):
         # Instance atributes
         self.filename = []
-        self.raw_signal = []
-        self.beat = np.empty([]) # record, beat, lead
-        self.class_ID = []   
-        self.valid_R = []       
-        self.R_pos = []
-        self.orig_R_pos = []
+        self.database = database
+        self.Annotations =[]
+        self.MITBIH_classes = []
+        self.AAMI_classes = []
+        #self.beat = np.empty([]) # record, beat, lead
+        #self.class_ID = []   
+        #self.valid_R = []       
+        #self.R_pos = []
+        #self.orig_R_pos = []
