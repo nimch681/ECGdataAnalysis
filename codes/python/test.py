@@ -1,6 +1,5 @@
 import os
 import csv
-import pandas as pd 
 from scipy.signal import medfilt
 
 def load_mitdb():
@@ -86,7 +85,16 @@ def load_patient_record(DB_name, record_number):
 
     return patient_record
 
+def display_signal_in_seconds(patient_record,signal, time_in_second):
+    sum = 0
+    new_signal = []
+    for t in range(0,len(signal)):
+        #print(mit100.time[t+1])
+        if(sum <= time_in_second):
+            sum= patient_record.time[t] + patient_record.time[t+1]
+            new_signal.append(signal[t])
 
+    display_signal(new_signal)
 
 def denoising_FIR(patient_record):
     return patient_record
@@ -106,8 +114,8 @@ def pan_tompskin_QRS_detector():
    # f.close
 
 mit100 = load_patient_record("mitdb","100")
-baseline = medfilt(mit100.MLII, 71) 
-baseline = medfilt(baseline, 215) 
+baseline = medfilt(mit100.MLII, 71) #has to be an odd number (360hz*0.2second)
+baseline = medfilt(baseline, 215) #has to be an odd number (360hz*0.6second)
 
 denoisedMLII = []
 denoisedV1 = []
@@ -126,3 +134,7 @@ for i in range(0, len(mit100.V1)):
     denoisedV1.append(mit100.V1[i] - baseline[i])
 
      # TODO Remove High Freqs
+
+
+
+

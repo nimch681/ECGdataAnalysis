@@ -40,7 +40,12 @@ class Patient_record:
         self.denoisedV1 = []
         self.annotations = []
 
-  
+class ECG_FIR_filter:
+    def __init__(self,medfilt_width_1, medfilt_width_2,is_low_pass, low_pass_fre):
+        self.medfilt_width_1 = medfilt_width_1
+        self.medfilt_width_2 = medfilt_width_2
+        self.is_low_pass = is_low_pass
+        self.low_pass_fre = low_pass_fre
 
 class ecg_database:
     def __init__(self, database):
