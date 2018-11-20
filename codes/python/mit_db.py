@@ -35,17 +35,19 @@ class Patient_record:
         self.filename = filename
         self.time = []
         self.MLII = []
-        self.denoisedMLII = []
+        self.filtered_MLII = []
         self.V1 = []
-        self.denoisedV1 = []
+        self.filtered_V1 = []
         self.annotations = []
 
 class ECG_FIR_filter:
-    def __init__(self,medfilt_width_1, medfilt_width_2,is_low_pass, low_pass_fre):
+    def __init__(self,medfilt_width_1=71,medfilt_width_2=215,is_low_pass=True, cutoff_fre=35, sampling_fre=360, fir_order=12):
         self.medfilt_width_1 = medfilt_width_1
         self.medfilt_width_2 = medfilt_width_2
         self.is_low_pass = is_low_pass
-        self.low_pass_fre = low_pass_fre
+        self.cutoff_fre = cutoff_fre
+        self.sampling_fre = sampling_fre
+        self.fir_order = fir_order
 
 class ecg_database:
     def __init__(self, database):

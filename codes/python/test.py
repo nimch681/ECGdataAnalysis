@@ -1,6 +1,6 @@
 import os
 import csv
-from scipy.signal import medfilt
+from scipy.signal import medfilt, lfilter, firwin, convolve
 
 def load_mitdb():
     my_db = ecg_database("mitdb")
@@ -96,8 +96,38 @@ def display_signal_in_seconds(patient_record,signal, time_in_second):
 
     display_signal(new_signal)
 
-def denoising_FIR(patient_record):
-    return patient_record
+
+
+
+def denoising_signal_FIR(patient_record, FIR_filter):
+    baseline = medfilt(patient_record.MLII, FIR_filter.medfilt_width_1) #has to be an odd number (360hz*0.2second)
+    baseline = medfilt(baseline, FIR_filter.medfilt_width_2) #has to be an odd number (360hz*0.6second)
+
+    denoisedMLII = []
+    denoisedV1 = []
+    # Remove Baseline
+    for i in range(0, len(patient_record.MLII)):
+        denoisedMLII.append(patient_record.MLII[i] - baseline[i])
+
+
+            # median_filter1D
+    baseline = medfilt(patient_record.V1, FIR_filter.medfilt_width_1) 
+    baseline = medfilt(baseline, FIR_filter.medfilt_width_2) 
+
+
+            # Remove Baseline
+    for i in range(0, len(patient_record.V1)):
+        denoisedV1.append(patient_record.V1[i] - baseline[i])
+
+    if(FIR_filter.is_low_pass == True):
+        FC = FIR_filter.cutoff_fre/(0.5*FIR_filter.sampling_fre)
+        b = firwin(FIR_filter.fir_order, cutoff = FC, window = "hamming")
+        denoisedMLII = convolve(denoisedMLII, b, mode='same')
+        denoisedV1 = convolve(denoisedV1, b, mode='same')
+    
+    patient_record.filtered_MLII = denoisedMLII
+    patient_record.filtered_V1 = denoisedV1
+  
 
 
 def pan_tompskin_QRS_detector():
@@ -113,28 +143,12 @@ def pan_tompskin_QRS_detector():
         #annotations.append(line)
    # f.close
 
-mit100 = load_patient_record("mitdb","100")
-baseline = medfilt(mit100.MLII, 71) #has to be an odd number (360hz*0.2second)
-baseline = medfilt(baseline, 215) #has to be an odd number (360hz*0.6second)
+#mit100 = load_patient_record("mitdb","100")
+#baseline = medfilt(mit100.MLII, 71) #has to be an odd number (360hz*0.2second)
+#baseline = medfilt(baseline, 215) #has to be an odd number (360hz*0.6second)
 
-denoisedMLII = []
-denoisedV1 = []
-# Remove Baseline
-for i in range(0, len(mit100.MLII)):
-    denoisedMLII.append(mit100.MLII[i] - baseline[i])
 
-    # TODO Remove High Freqs
-
-            # median_filter1D
-baseline = medfilt(mit100.V1, 71) 
-baseline = medfilt(baseline, 215) 
-
-            # Remove Baseline
-for i in range(0, len(mit100.V1)):
-    denoisedV1.append(mit100.V1[i] - baseline[i])
-
-     # TODO Remove High Freqs
-
+  
 
 
 
