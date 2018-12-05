@@ -85,6 +85,8 @@ def load_patient_record(DB_name, record_number):
 
     return patient_record
 
+
+
 def display_signal_in_seconds(patient_record,signal, time_in_second):
     sum = 0
     new_signal = []
@@ -148,7 +150,12 @@ def pan_tompskin_QRS_detector():
 #baseline = medfilt(baseline, 215) #has to be an odd number (360hz*0.6second)
 
 
-  
+
+#testing record 100 with denoising method  
+mit100 = load_patient_record("mitdb","100")
+filter = ECG_FIR_filter()
+denoising_signal_FIR(mit100,filter)
+display_signal_in_seconds(mit100,mit100.MLII,3)
 
 
 
