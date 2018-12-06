@@ -1,7 +1,7 @@
 import os
 import csv
 from scipy.signal import medfilt, lfilter, firwin, convolve
-
+from pymatbridge import Matlab as matlab
 def load_mitdb():
     my_db = ecg_database("mitdb")
     pathDB = os.getcwd()+'/database/'
@@ -156,6 +156,7 @@ mit100 = load_patient_record("mitdb","100")
 filter = ECG_FIR_filter()
 denoising_signal_FIR(mit100,filter)
 display_signal_in_seconds(mit100,mit100.MLII,3)
+
 
 
 
