@@ -1,6 +1,8 @@
+
 from scipy.signal import medfilt, lfilter, firwin, convolve
 import numpy as np
 import math
+from codes.python import load_mitdb
 #from pymatbridge import Matlab as matlab
 
 class ECG_FIR_filter:
@@ -46,16 +48,8 @@ def denoising_signal_FIR(patient_record, FIR_filter):
 
 
 
-
-#testing record 100 with denoising method  
-mit100 = load_patient_record("mitdb","100")
-filter = ECG_FIR_filter()
-denoising_signal_FIR(mit100,filter)
-display_signal_in_seconds(mit100,mit100.MLII,3)
+if __name__ == "__main__":
+    filter = ECG_FIR_filter()
 
 
-
-def lgth_transform(ecg, ws):
-    lgth=ecg.shape[0]
-    return lgth
 
