@@ -45,9 +45,6 @@ def denoising_signal_FIR(patient_record, FIR_filter):
   
 
 
-
-
-
 if __name__ == "__main__":
     filter = ECG_FIR_filter()
 

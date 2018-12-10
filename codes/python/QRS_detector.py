@@ -1,134 +1,306 @@
-## detect QRS complex from ECG time series
+#!/usr/bin/env python
 
-import numpy as np 
-import math
-from numpy import genfromtxt
+"""
+QRS_detector.py
+
+This software is based on code extracted from:
+
+Python Online and Offline ECG QRS Detector based on the Pan-Tomkins algorithm
+
+https://doi.org/10.5281/zenodo.826614
+https://github.com/c-labpl/qrs_detector/tree/v1.1.0
+https://zenodo.org/record/583770
+
+    MIT License
+
+    Copyright (c) 2017 Michal Sznajder, Marta Lukowska
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+"""
+
+import numpy as np
 import matplotlib.pyplot as plt
+from time import gmtime, strftime
+from scipy.signal import butter, lfilter, resample
 
-def read_ecg(file_name):
-	return genfromtxt(file_name, delimiter=',')
+PLOT_DIR = "plots/"
+class QRSDetectorOffline(object):
+    """
+    Python Offline ECG QRS Detector based on the Pan-Tomkins algorithm.
+   
+    The module is offline Python implementation of QRS complex detection in the ECG signal based
+    on the Pan-Tomkins algorithm: Pan J, Tompkins W.J., A real-time QRS detection algorithm,
+    IEEE Transactions on Biomedical Engineering, Vol. BME-32, No. 3, March 1985, pp. 230-236.
 
-def lgth_transform(ecg, ws):
-	lgth=ecg.shape[0]
-	sqr_diff=np.zeros(lgth)
-	diff=np.zeros(lgth)
-	ecg=np.pad(ecg, ws, 'edge')
-	for i in range(lgth):
-		temp=ecg[i:i+ws+ws+1]
-		left=temp[ws]-temp[0]
-		right=temp[ws]-temp[-1]
-		diff[i]=min(left, right)
-		diff[diff<0]=0
-	# sqr_diff=np.multiply(diff, diff)
-	# diff=ecg[:-1]-ecg[1:]
-	# sqr_diff[:-1]=np.multiply(diff, diff)
-	# sqr_diff[-1]=sqr_diff[-2]
-	return np.multiply(diff, diff)
+    The QRS complex corresponds to the depolarization of the right and left ventricles of the human heart.
+    It is the most visually obvious part of the ECG signal. 
+    QRS complex detection is essential for time-domain ECG signal analyses, namely heart rate variability. 
+    It makes it possible to compute inter-beat interval (RR interval) values that correspond to the time between 
+    two consecutive R peaks. Thus, a QRS complex detector is an ECG-based heart contraction detector.
+    """
 
-def integrate(ecg, ws):
-	lgth=ecg.shape[0]
-	integrate_ecg=np.zeros(lgth)
-	ecg=np.pad(ecg, math.ceil(ws/2), mode='symmetric')
-	for i in range(lgth):
-		integrate_ecg[i]=np.sum(ecg[i:i+ws])/ws
-	return integrate_ecg
+    def __init__(self, ecg_data_raw, fs, verbose=True, plot_data=False, show_plot=False):
+        """
+        QRSDetectorOffline class initialisation method.
+        :param string ecg_data_raw: Raw float data of the ECG signal
+        :param bool verbose: flag for printing the results
+        :param bool plot_data: flag for plotting the results to a file
+        :param bool show_plot: flag for showing generated results plot - will not show anything if plot is not generated
+        """
+        # Loaded ECG data.
+        self.ecg_data_raw = ecg_data_raw
 
-def find_peak(data, ws):
-	lgth=data.shape[0]
-	true_peaks=list()
-	for i in range(lgth-ws+1):
-		temp=data[i:i+ws]
-		if np.var(temp)<5:
-			continue
-		index=int((ws-1)/2)
-		peak=True
-		for j in range(index):
-			if temp[index-j]<=temp[index-j-1] or temp[index+j]<=temp[index+j+1]:
-				peak=False
-				break
+        if fs != 360:
+            self.resample_signal(fs) # Added by Mondejar-Guerra
+        else:
+            self.ecg_data = ecg_data_raw[:]
 
-		if peak is True:
-			true_peaks.append(int(i+(ws-1)/2))
-	return np.asarray(true_peaks)
+        # Configuration parameters.
+        self.signal_frequency = 360 #250  # Set ECG device frequency in samples per second here.
 
-def find_R_peaks(ecg, peaks, ws):
-	num_peak=peaks.shape[0]
-	R_peaks=list()
-	for index in range(num_peak):
-		i=peaks[index]
-		if i-2*ws>0 and i<ecg.shape[0]:
-			temp_ecg=ecg[i-2*ws:i]
-			R_peaks.append(int(np.argmax(temp_ecg)+i-2*ws))
-	return np.asarray(R_peaks)
+        self.filter_lowcut = 0.0001
+        self.filter_highcut = 15.0
+        self.filter_order = 1
 
-def find_S_point(ecg, R_peaks):
-	num_peak=R_peaks.shape[0]
-	S_point=list()
-	for index in range(num_peak):
-		i=R_peaks[index]
-		cnt=i
-		if cnt+1>=ecg.shape[0]:
-			break
-		while ecg[cnt]>ecg[cnt+1]:
-			cnt+=1
-			if cnt>=ecg.shape[0]:
-				break
-		S_point.append(cnt)
-	return np.asarray(S_point)
+        self.integration_window = 16 #360 / 16 #15  # Change proportionally when adjusting frequency (in samples).
 
+        self.findpeaks_limit = 0.35
+        self.findpeaks_spacing = 72#360 / 5 #50  # Change proportionally when adjusting frequency (in samples).
 
-def find_Q_point(ecg, R_peaks):
-	num_peak=R_peaks.shape[0]
-	Q_point=list()
-	for index in range(num_peak):
-		i=R_peaks[index]
-		cnt=i
-		if cnt-1<0:
-			break
-		while ecg[cnt]>ecg[cnt-1]:
-			cnt-=1
-			if cnt<0:
-				break
-		Q_point.append(cnt)
-	return np.asarray(Q_point)
+        self.refractory_period = 180#360 / 2 #120  # Change proportionally when adjusting frequency (in samples).
+        self.qrs_peak_filtering_factor = 0.125
+        self.noise_peak_filtering_factor = 0.125
+        self.qrs_noise_diff_weight = 0.25
 
-def EKG_QRS_detect(ecg, fs, QS, plot=False):
-	sig_lgth=ecg.shape[0]
-	ecg=ecg-np.mean(ecg)
-	ecg_lgth_transform=lgth_transform(ecg, int(fs/20))
-	# ecg_lgth_transform=lgth_transform(ecg_lgth_transform, int(fs/40))
+        # Measured and calculated values.
+        self.filtered_ecg_measurements = None
+        self.differentiated_ecg_measurements = None
+        self.squared_ecg_measurements = None
+        self.integrated_ecg_measurements = None
+        self.detected_peaks_indices = None
+        self.detected_peaks_values = None
 
-	ws=int(fs/8)
-	ecg_integrate=integrate(ecg_lgth_transform, ws)/ws
-	ws=int(fs/6)
-	ecg_integrate=integrate(ecg_integrate, ws)
-	ws=int(fs/36)
-	ecg_integrate=integrate(ecg_integrate, ws)
-	ws=int(fs/72)
-	ecg_integrate=integrate(ecg_integrate, ws)
+        self.qrs_peak_value = 0.0
+        self.noise_peak_value = 0.0
+        self.threshold_value = 0.0
 
-	peaks=find_peak(ecg_integrate, int(fs/10))
-	R_peaks=find_R_peaks(ecg, peaks, int(fs/40))
-	if QS:
-		S_point=find_S_point(ecg, R_peaks)
-		Q_point=find_Q_point(ecg, R_peaks)
-	else:
-		S_point=None
-		Q_point=None
-	if plot:
-		index=np.arange(sig_lgth)/fs
-		fig, ax=plt.subplots()
-		ax.plot(index, ecg, 'b', label='EKG')
-		ax.plot(R_peaks/fs, ecg[R_peaks], 'ro', label='R peaks')
-		if QS:
-			ax.plot(S_point/fs, ecg[S_point], 'go', label='S')
-			ax.plot(Q_point/fs, ecg[Q_point], 'yo', label='Q')
-		ax.set_xlim([0, sig_lgth/fs])
-		ax.set_xlabel('Time [sec]')
-		ax.legend()
-		# ax[1].plot(ecg_integrate)
-		# ax[1].set_xlim([0, ecg_integrate.shape[0]])
-		# ax[2].plot(ecg_lgth_transform)
-		# ax[2].set_xlim([0, ecg_lgth_transform.shape[0]])
-		plt.show()
-	return R_peaks, S_point, Q_point
+        # Detection results.
+        self.qrs_peaks_indices = np.array([], dtype=int)
+        self.noise_peaks_indices = np.array([], dtype=int)
+
+        # Final ECG data and QRS detection results array - samples with detected QRS are marked with 1 value.
+        self.ecg_data_detected = None
+
+        # Run whole detector flow.
+        #self.load_ecg_data()
+        self.detect_peaks()
+        self.detect_qrs()
+        self.qrs_peaks_indices_fs = []
+        if fs != 360:
+            factor =  360.0 / fs
+            # Resample R-peak points to original freq
+            for i in range(0, len(self.qrs_peaks_indices)):
+                self.qrs_peaks_indices_fs = np.append(self.qrs_peaks_indices_fs, int(round(self.qrs_peaks_indices[i] / factor)))
+        else:
+            self.qrs_peaks_indices_fs = self.qrs_peaks_indices
+        
+        if verbose:
+            self.print_detection_data()
+
+        if plot_data:
+            self.plot_path = "{:s}QRS_offline_detector_plot_{:s}.png".format(PLOT_DIR,
+                                                                             strftime("%Y_%m_%d_%H_%M_%S", gmtime()))
+            self.plot_detection_data(show_plot=show_plot)
+
+    """
+    Resample signal to 360Hz 
+    """
+    def resample_signal(self, fs):
+        factor = 360.0 / fs
+        num_samples = int(round(factor * len(self.ecg_data_raw)))
+        self.ecg_data = resample(self.ecg_data_raw, num_samples)
+
+    """Loading ECG measurements data methods."""
+
+    """ECG measurements data processing methods."""
+
+    def detect_peaks(self):
+        """
+        Method responsible for extracting peaks from loaded ECG measurements data through measurements processing.
+        """
+        # Extract measurements from loaded ECG data.
+        ecg_measurements = self.ecg_data#_raw[:, 1]
+
+        # Measurements filtering - 0-15 Hz band pass filter.
+        self.filtered_ecg_measurements = self.bandpass_filter(ecg_measurements, lowcut=self.filter_lowcut,
+                                                              highcut=self.filter_highcut, signal_freq=self.signal_frequency,
+                                                              filter_order=self.filter_order)
+        self.filtered_ecg_measurements[:5] = self.filtered_ecg_measurements[5]
+
+        # Derivative - provides QRS slope information.
+        self.differentiated_ecg_measurements = np.ediff1d(self.filtered_ecg_measurements)
+
+        # Squaring - intensifies values received in derivative.
+        self.squared_ecg_measurements = self.differentiated_ecg_measurements ** 2
+
+        # Moving-window integration.
+        self.integrated_ecg_measurements = np.convolve(self.squared_ecg_measurements, np.ones(self.integration_window))
+
+        # Fiducial mark - peak detection on integrated measurements.
+        self.detected_peaks_indices = self.findpeaks(data=self.integrated_ecg_measurements,
+                                                     limit=self.findpeaks_limit,
+                                                     spacing=self.findpeaks_spacing)
+
+        self.detected_peaks_values = self.integrated_ecg_measurements[self.detected_peaks_indices]
+
+    """QRS detection methods."""
+
+    def detect_qrs(self):
+        """
+        Method responsible for classifying detected ECG measurements peaks either as noise or as QRS complex (heart beat).
+        """
+        for detected_peak_index, detected_peaks_value in zip(self.detected_peaks_indices, self.detected_peaks_values):
+
+            try:
+                last_qrs_index = self.qrs_peaks_indices[-1]
+            except IndexError:
+                last_qrs_index = 0
+
+            # After a valid QRS complex detection, there is a 200 ms refractory period before next one can be detected.
+            if detected_peak_index - last_qrs_index > self.refractory_period or not self.qrs_peaks_indices.size:
+                # Peak must be classified either as a noise peak or a QRS peak.
+                # To be classified as a QRS peak it must exceed dynamically set threshold value.
+                if detected_peaks_value > self.threshold_value:
+                    self.qrs_peaks_indices = np.append(self.qrs_peaks_indices, detected_peak_index)
+
+                    # Adjust QRS peak value used later for setting QRS-noise threshold.
+                    self.qrs_peak_value = self.qrs_peak_filtering_factor * detected_peaks_value + \
+                                          (1 - self.qrs_peak_filtering_factor) * self.qrs_peak_value
+                else:
+                    self.noise_peaks_indices = np.append(self.noise_peaks_indices, detected_peak_index)
+
+                    # Adjust noise peak value used later for setting QRS-noise threshold.
+                    self.noise_peak_value = self.noise_peak_filtering_factor * detected_peaks_value + \
+                                            (1 - self.noise_peak_filtering_factor) * self.noise_peak_value
+
+                # Adjust QRS-noise threshold value based on previously detected QRS or noise peaks value.
+                self.threshold_value = self.noise_peak_value + \
+                                       self.qrs_noise_diff_weight * (self.qrs_peak_value - self.noise_peak_value)
+
+        # Create array containing both input ECG measurements data and QRS detection indication column.
+        # We mark QRS detection with '1' flag in 'qrs_detected' log column ('0' otherwise).
+        measurement_qrs_detection_flag = np.zeros([len(self.ecg_data), 1])
+        measurement_qrs_detection_flag[self.qrs_peaks_indices] = 1
+        self.ecg_data_detected = np.append(self.ecg_data, measurement_qrs_detection_flag)
+
+    """Tools methods."""
+
+    def bandpass_filter(self, data, lowcut, highcut, signal_freq, filter_order):
+        """
+        Method responsible for creating and applying Butterworth filter.
+        :param deque data: raw data
+        :param float lowcut: filter lowcut frequency value
+        :param float highcut: filter highcut frequency value
+        :param int signal_freq: signal frequency in samples per second (Hz)
+        :param int filter_order: filter order
+        :return array: filtered data
+        """
+        nyquist_freq = 0.5 * signal_freq
+        low = lowcut / nyquist_freq
+        high = highcut / nyquist_freq
+        b, a = butter(filter_order, [low, high], btype="band")
+        y = lfilter(b, a, data)
+        return y
+
+    def findpeaks(self, data, spacing=1, limit=None):
+        """
+        Janko Slavic peak detection algorithm and implementation.
+        https://github.com/jankoslavic/py-tools/tree/master/findpeaks
+        Finds peaks in `data` which are of `spacing` width and >=`limit`.
+        :param ndarray data: data
+        :param float spacing: minimum spacing to the next peak (should be 1 or more)
+        :param float limit: peaks should have value greater or equal
+        :return array: detected peaks indexes array
+        """
+        len = data.size
+        x = np.zeros(len + 2 * spacing)
+        x[:spacing] = data[0] - 1.e-6
+        x[-spacing:] = data[-1] - 1.e-6
+        x[spacing:spacing + len] = data
+        peak_candidate = np.zeros(len)
+        peak_candidate[:] = True
+        for s in range(spacing):
+            start = spacing - s - 1
+            h_b = x[start: start + len]  # before
+            start = spacing
+            h_c = x[start: start + len]  # central
+            start = spacing + s + 1
+            h_a = x[start: start + len]  # after
+            peak_candidate = np.logical_and(peak_candidate, np.logical_and(h_c > h_b, h_c > h_a))
+
+        ind = np.argwhere(peak_candidate)
+        ind = ind.reshape(ind.size)
+        if limit is not None:
+            ind = ind[data[ind] > limit]
+        return ind
+
+    ###########################################################################
+    """Results reporting methods."""
+
+    def print_detection_data(self):
+        """
+        Method responsible for printing the results.
+        """
+        print("qrs peaks indices")
+        print(self.qrs_peaks_indices)
+        print("noise peaks indices")
+        print(self.noise_peaks_indices)
+
+    def plot_detection_data(self, show_plot=False):
+        """
+        Method responsible for plotting detection results.
+        :param bool show_plot: flag for plotting the results and showing plot
+        """
+        def plot_data(axis, data, title='', fontsize=10):
+            axis.set_title(title, fontsize=fontsize)
+            axis.grid(which='both', axis='both', linestyle='--')
+            axis.plot(data, color="salmon", zorder=1)
+
+        def plot_points(axis, values, indices):
+            axis.scatter(x=indices, y=values[indices], c="black", s=50, zorder=2)
+
+        plt.close('all')
+        fig, axarr = plt.subplots(6, sharex=True, figsize=(15, 18))
+
+        plot_data(axis=axarr[0], data=self.ecg_data, title='Raw ECG measurements')
+        plot_data(axis=axarr[1], data=self.filtered_ecg_measurements, title='Filtered ECG measurements')
+        plot_data(axis=axarr[2], data=self.differentiated_ecg_measurements, title='Differentiated ECG measurements')
+        plot_data(axis=axarr[3], data=self.squared_ecg_measurements, title='Squared ECG measurements')
+        plot_data(axis=axarr[4], data=self.integrated_ecg_measurements, title='Integrated ECG measurements with QRS peaks marked (black)')
+        plot_points(axis=axarr[4], values=self.integrated_ecg_measurements, indices=self.qrs_peaks_indices)
+        plot_data(axis=axarr[5], data=self.ecg_data, title='Raw ECG measurements with QRS peaks marked (black)')
+        plot_points(axis=axarr[5], values=self.ecg_data_detected, indices=self.qrs_peaks_indices)
+
+        plt.tight_layout()
+        fig.savefig(self.plot_path)
+
+        if show_plot: 
+            plt.show()
+
+        plt.close()

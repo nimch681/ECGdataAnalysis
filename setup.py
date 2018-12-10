@@ -1,5 +1,4 @@
-from codes.python import load_mitdb
-from codes.python import ECG_denoising
+from codes.python import load_mitdb,ECG_denoising
 
 
 mit100 = load_mitdb.load_patient_record("mitdb","100")
