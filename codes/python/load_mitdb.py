@@ -33,6 +33,10 @@ class Patient_record:
         self.V1 = []
         self.filtered_V1 = []
         self.annotations = []
+        self.class_ID = []
+        self.R_pos = []
+        self.beat_1 = []
+        self.beat_2 = []
 
 class ecg_database:
     def __init__(self, database):
@@ -68,7 +72,7 @@ def load_mitdb():
         if file.endswith(".csv"):
        
             fRecords.append(file)
-        elif file.endswith(".text"):
+        elif file.endswith(".txt"):
       
             fAnnotations.append(file)        
 
@@ -115,9 +119,9 @@ def load_patient_record(DB_name, record_number):
         V1.append((float(row[V1_index])))
     f.close
 
-    filename = pathDB + DB_name + "/csv/" + record_number +".text"
+    filename = pathDB + DB_name + "/csv/" + record_number +".txt"
     print(filename)
-    f = open(filename, 'rb')
+    f = open(filename, 'rt')
     next(f) # skip first line!
 
     annotations = []

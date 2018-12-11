@@ -2,7 +2,7 @@
 from scipy.signal import medfilt, lfilter, firwin, convolve
 import numpy as np
 import math
-from codes.python import load_mitdb
+
 #from pymatbridge import Matlab as matlab
 
 class ECG_FIR_filter:
@@ -14,34 +14,23 @@ class ECG_FIR_filter:
         self.sampling_fre = sampling_fre
         self.fir_order = fir_order
 
-def denoising_signal_FIR(patient_record, FIR_filter):
-    baseline = medfilt(patient_record.MLII, FIR_filter.medfilt_width_1) #has to be an odd number (360hz*0.2second)
+def denoising_signal_FIR(signal, FIR_filter):
+    baseline = medfilt(signal, FIR_filter.medfilt_width_1) #has to be an odd number (360hz*0.2second)
     baseline = medfilt(baseline, FIR_filter.medfilt_width_2) #has to be an odd number (360hz*0.6second)
 
-    denoisedMLII = []
-    denoisedV1 = []
+    denoised_signal = []
+    
     # Remove Baseline
-    for i in range(0, len(patient_record.MLII)):
-        denoisedMLII.append(patient_record.MLII[i] - baseline[i])
-
-
-            # median_filter1D
-    baseline = medfilt(patient_record.V1, FIR_filter.medfilt_width_1) 
-    baseline = medfilt(baseline, FIR_filter.medfilt_width_2) 
-
-
-            # Remove Baseline
-    for i in range(0, len(patient_record.V1)):
-        denoisedV1.append(patient_record.V1[i] - baseline[i])
+    for i in range(0, len(signal)):
+        denoised_signal.append(signal[i] - baseline[i])
 
     if(FIR_filter.is_low_pass == True):
         FC = FIR_filter.cutoff_fre/(0.5*FIR_filter.sampling_fre)
         b = firwin(FIR_filter.fir_order, cutoff = FC, window = "hamming")
-        denoisedMLII = convolve(denoisedMLII, b, mode='same')
-        denoisedV1 = convolve(denoisedV1, b, mode='same')
+        denoised_signal = convolve(denoised_signal, b, mode='same')
+        
     
-    patient_record.filtered_MLII = denoisedMLII
-    patient_record.filtered_V1 = denoisedV1
+    return denoised_signal
   
 
 
