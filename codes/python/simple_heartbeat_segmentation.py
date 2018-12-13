@@ -9,12 +9,13 @@ Borrowed and slighly changed the code from VARPA, University of Coruna: Mondejar
 """
 import operator
 
-def segment_beat(signal,annotations, winL,winR):
+def segment_beat(signal,time,annotations, winL,winR):
     class_ID = []
     beat = []
     R_poses = []
-    #Original_R_poses = []  
-   # valid_R = np.zeros((2,))
+    beat_class = []
+    Original_R_poses = []  
+    valid_R = []
     size_RR_max = 22
     pos = 0
     MITBIH_classes = ['N', 'L', 'R', 'e', 'j', 'A', 'a', 'J', 'S', 'V', 'E', 'F']#, 'P', '/', 'f', 'u']
@@ -44,7 +45,10 @@ def segment_beat(signal,annotations, winL,winR):
         if classAnttd in MITBIH_classes:
         
             if(pos > winL and pos < (len(signal) - winR)):
-                beat.append( signal[pos - winL : pos + winR])
+
+                beat_poses = list(range(pos - winL, pos + winR))
+                beat_poses = [int(i) for i in beat_poses]
+                beat.append((beat_poses,time[pos - winL : pos + winR],signal[pos - winL : pos + winR]))
            
                 for i in range(0,len(AAMI_classes)):
                     if classAnttd in AAMI_classes[i]:
@@ -53,14 +57,17 @@ def segment_beat(signal,annotations, winL,winR):
                 #convert class
                 class_ID.append(class_AAMI)
 
-                R_poses.append(pos)
-           # else:
-               # valid_R = np.append(valid_R, 0)
-       # else:
-            #valid_R = np.append(valid_R, 0)
+                valid_R.append(1)
+            else:
+               valid_R.append(0)
+        else:
+            valid_R.append(0)
+            R_poses.append(pos)
+            beat_class.append(classAnttd)
+            Original_R_poses(originalPos)
             
         #R_poses.append(pos)
     
         #Original_R_poses = np.append(Original_R_poses, originalPos)
-    return beat, class_ID, R_poses
+    return beat, class_ID, beat_class, R_poses,valid_R, Original_R_poses
     

@@ -33,10 +33,16 @@ class Patient_record:
         self.V1 = []
         self.filtered_V1 = []
         self.annotations = []
-        self.class_ID = []
-        self.R_pos = []
-        self.beat_1 = []
-        self.beat_2 = []
+        self.annotated_R_poses = []
+        self.annotated_beat_class = []
+        self.segmented_class_ID = []
+        self.segmented_beat_class = []
+        self.segmented_R_pos = []
+        self.segmented_valid_R = []
+        self.segmented_original_R = []
+        self.segmented_beat_1 = []
+        self.segmented_beat_2 = []
+        
 
 class ecg_database:
     def __init__(self, database):
@@ -128,11 +134,24 @@ def load_patient_record(DB_name, record_number):
     for line in f:
         annotations.append(line)
     f.close
+
+    annotated_beat_type = []
+    annotated_orignal_R_poses = []
+
+    for a in annotations:
+    
+        aS = a.split()
+            
+        annotated_orignal_R_poses.append(int(aS[1]))
+        annotated_beat_type.append(str(aS[2]))
+
     patient_record.filename = record_number
     patient_record.time = time
     patient_record.MLII = MLII
     patient_record.V1 = V1
     patient_record.annotations = annotations
+    patient_record.annotated_R_poses = annotated_orignal_R_poses
+    patient_record.annotated_beat_class = annotated_beat_type
 
     return patient_record
 
