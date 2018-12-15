@@ -14,6 +14,10 @@ class ECG_FIR_filter:
         self.sampling_fre = sampling_fre
         self.fir_order = fir_order
 
+    def attribute(self):
+        print("medfilt_width_1, medfilt_width_2, is_low_pass, cutoff_fre, sampling_fre, fir_order")
+        
+
 def denoising_signal_FIR(signal, FIR_filter):
     baseline = medfilt(signal, FIR_filter.medfilt_width_1) #has to be an odd number (360hz*0.2second)
     baseline = medfilt(baseline, FIR_filter.medfilt_width_2) #has to be an odd number (360hz*0.6second)

@@ -8,8 +8,9 @@ Borrowed and slighly changed the code from VARPA, University of Coruna: Mondejar
 24 Oct 2017
 """
 import operator
+import numpy as np
 
-def segment_beat(signal,time,annotations, winL,winR):
+def segment_beat(signal,time,annotations, winL, winR):
     class_ID = []
     beat = []
     R_poses = []
@@ -41,13 +42,15 @@ def segment_beat(signal,time,annotations, winL,winR):
             
    
         
-            
+        beat_poses = list(range(pos - winL, pos + winR))
+        beat_poses = [int(i) for i in beat_poses]
+        zero = np.zeros(winL+winR)
+
         if classAnttd in MITBIH_classes:
         
             if(pos > winL and pos < (len(signal) - winR)):
 
-                beat_poses = list(range(pos - winL, pos + winR))
-                beat_poses = [int(i) for i in beat_poses]
+                
                 beat.append((beat_poses,time[pos - winL : pos + winR],signal[pos - winL : pos + winR]))
            
                 for i in range(0,len(AAMI_classes)):
@@ -58,15 +61,25 @@ def segment_beat(signal,time,annotations, winL,winR):
                 class_ID.append(class_AAMI)
 
                 valid_R.append(1)
+               
             else:
                valid_R.append(0)
+               class_ID.append(-1)
+               beat.append((beat_poses,zero,zero))
+
+               #if(pos > winL and pos < (len(signal) - winR)):
+              
         else:
             valid_R.append(0)
-            R_poses.append(pos)
-            beat_class.append(classAnttd)
-            Original_R_poses(originalPos)
-            
-        #R_poses.append(pos)
+            class_ID.append(-1)
+            #if(pos > winL and pos < (len(signal) - winR)):
+            beat.append((beat_poses,zero,zero))
+
+
+        R_poses.append((pos, signal[pos]))
+        beat_class.append(classAnttd)
+        Original_R_poses.append((originalPos, signal[originalPos]))
+        
     
         #Original_R_poses = np.append(Original_R_poses, originalPos)
     return beat, class_ID, beat_class, R_poses,valid_R, Original_R_poses

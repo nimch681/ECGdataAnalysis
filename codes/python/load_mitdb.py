@@ -42,6 +42,9 @@ class Patient_record:
         self.segmented_original_R = []
         self.segmented_beat_1 = []
         self.segmented_beat_2 = []
+
+    def attribute(self):
+        print("database, filename, time, MLII, filtered_MLII, V1, filtered_V1, annotations, annotated_R_poses, annotated_beat_class, segmented_class_ID, segmented_beat_class,segmented_R_pos, segmented_valid_R, segmented_original_R, segmented_beat_1, segmented_beat_2 ")
         
 
 class ecg_database:
@@ -57,6 +60,10 @@ class ecg_database:
         #self.valid_R = []       
         #self.R_pos = []
         #self.orig_R_pos = []
+
+    def attribute(self):
+        print("filename, database, Annotations, MITBIH_classes, AAMI_classes ")
+        
 
 
 def load_mitdb():
