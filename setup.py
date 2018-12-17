@@ -1,6 +1,8 @@
 from codes.python import load_mitdb,ECG_denoising
 from codes.python import simple_heartbeat_segmentation as shs
 import numpy as np
+from scipy.signal import resample
+import operator
 
 mitdb = load_mitdb.load_mitdb()
 mit100 = load_mitdb.load_patient_record("mitdb","100")
@@ -11,7 +13,7 @@ mit100.filtered_V1 = ECG_denoising.denoising_signal_FIR(mit100.V1,filter_ecg)
 mit100.segmented_beat_1, mit100.segmented_class_ID, mit100.segmented_beat_class, mit100.segmented_R_pos, mit100.segmented_valid_R, mit100.segmented_original_R  = shs.segment_beat(mit100.filtered_MLII, mit100.time, mit100.annotations, 90, 90)
 #np100R = np.concatenate((mit100.segmented_original_R,mit100.segmented_R_pos,mit100.segmented_valid_R ))
 
-MLII = mit100.MLII
+MLII = mit100.filtered_MLII
 np100_MLII = np.array(mit100.segmented_beat_1)
 
 np100R = np.array(mit100.segmented_original_R)
@@ -30,10 +32,19 @@ for i in range(0,len(np100R)):
         count = count+ 1
 
 percent = (len(np100R)/count) * 100
-       
-    
-    
 
+Resampled_MLII = []
+    
+def resample_signal(fs):
+        factor = 360.0 / fs
+        num_samples = int(round(factor * len(mit100.MLII)))
+        Resampled_MLII = resample(mit100.MLII, num_samples)
+
+factor = 360.0 / 200
+num_samples = int(round(factor * len(mit100.MLII)))
+Resampled_MLII = resample(mit100.MLII, num_samples)
+
+index, value = max(enumerate(MLII), key=operator.itemgetter(1))
 
 np100R.shape
 np100R

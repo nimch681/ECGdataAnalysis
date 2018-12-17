@@ -74,10 +74,11 @@ class QRSDetectorOffline(object):
         # Configuration parameters.
         self.signal_frequency = 360 #250  # Set ECG device frequency in samples per second here.
 
-        self.filter_lowcut = 0.0001
-        self.filter_highcut = 15.0
-        self.filter_order = 1
+        self.filter_lowcut = 0.0001 # dont need this, already got one
+        self.filter_highcut = 15.0 # dont need this, already got one
+        self.filter_order = 1 # dont need this, already got one
 
+        #TODO find out what this is.
         self.integration_window = 16 #360 / 16 #15  # Change proportionally when adjusting frequency (in samples).
 
         self.findpeaks_limit = 0.35
@@ -93,8 +94,8 @@ class QRSDetectorOffline(object):
         self.differentiated_ecg_measurements = None
         self.squared_ecg_measurements = None
         self.integrated_ecg_measurements = None
-        self.detected_peaks_indices = None
-        self.detected_peaks_values = None
+        self.detected_peaks_indices = None #important
+        self.detected_peaks_values = None # important
 
         self.qrs_peak_value = 0.0
         self.noise_peak_value = 0.0
@@ -102,7 +103,7 @@ class QRSDetectorOffline(object):
 
         # Detection results.
         self.qrs_peaks_indices = np.array([], dtype=int)
-        self.noise_peaks_indices = np.array([], dtype=int)
+        self.noise_peaks_indices = np.array([], dtype=int) # what is noice peaks?
 
         # Final ECG data and QRS detection results array - samples with detected QRS are marked with 1 value.
         self.ecg_data_detected = None
