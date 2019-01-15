@@ -7,9 +7,8 @@ import sys
 import csv
 import os
 import operator
-import matplotlib.pyplot as plt
-import wfdb
-from wfdb import processing, plot 
+
+ 
 mit100 = load_mitdb.load_patient_record("mitdb","100")
 filter_ecg = ECG_denoising.ECG_FIR_filter()
 mit100.filtered_MLII = ECG_denoising.denoising_signal_FIR(mit100.MLII,filter_ecg)

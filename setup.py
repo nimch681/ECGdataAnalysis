@@ -1,9 +1,16 @@
-from codes.python import load_mitdb,ECG_denoising
 from codes.python import simple_heartbeat_segmentation as shs
+from codes.python import load_mitdb,ECG_denoising
+from codes.python import QRS_detector
 import numpy as np
 from scipy.signal import resample
 import operator
-
+from numpy import array
+import sys
+import csv
+import os
+import matplotlib.pyplot as plt
+import wfdb
+from wfdb import processing, plot
 
 mitdblstring = wfdb.get_record_list("mitdb")
 mitdbls = [int(i) for i in mitdblstring]
@@ -13,9 +20,9 @@ for i in mitdbls:
     mitdb.append(load_mitdb.load_patient_record("mitdb", str(i)))
     
 mit100 = mitdb[0]
-mitdb = load_mitdb.load_mitdb()
+#mitdb = load_mitdb.load_mitdb()
 #mit100 = load_mitdb.load_patient_record("mitdb","100")
-#load_mitdb.display_signal_in_seconds(mit100,mit100.MLII,3)
+load_mitdb.display_signal_in_seconds(mit100,mit100.MLII,3)
 filter_ecg = ECG_denoising.ECG_FIR_filter()
 mit100.filtered_MLII = ECG_denoising.denoising_signal_FIR(mit100.MLII,filter_ecg)
 mit100.filtered_V1 = ECG_denoising.denoising_signal_FIR(mit100.V1,filter_ecg)
