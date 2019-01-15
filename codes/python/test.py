@@ -9,6 +9,7 @@ import os
 import operator
 import matplotlib.pyplot as plt
 import wfdb
+from wfdb import processing, plot 
 mit100 = load_mitdb.load_patient_record("mitdb","100")
 filter_ecg = ECG_denoising.ECG_FIR_filter()
 mit100.filtered_MLII = ECG_denoising.denoising_signal_FIR(mit100.MLII,filter_ecg)
@@ -194,19 +195,87 @@ plt.close()
 plt.plot(MLII[:10000], '-gD',markevery=MLII[qrs_peaks_indices[:10]])
 plt.show()
 
-xs = np.linspace(-np.pi, np.pi, 30)
-ys = np.sin(xs)
-markers_on = [12, 17, 18, 19]
-plt.plot(xs, ys, '-gD', markevery=markers_on)
-plt.show()
+p_wave_pos = mit100.annotated_p_waves_pos
+t_wave_pos = mit100.annotated_t_waves_pos
 
-vals,poly = range(-60,60), range(-60,60)
+qrs_inds = processing.xqrs_detect(sig=MLII, fs=mit100.fields['fs'])
+qrs_locs = processing.gqrs_detect(MLII, fs=360)
 
-plt.plot(vals, poly, label='some graph')
-roots = [-1,1,2]
+heart_rate = processing.compute_hr(sig_len = len(MLII), qrs_inds= qrs_inds, fs=mit100.fields['fs'])
+simple_qrs=mit100.segmented_R_pos
+qrs_locs[0]
+qrs_inds[1]
+plot.plot_items(MLII[int(p_wave_pos[0]):qrs_inds[1]])
+plot.plot_items(MLII[:1000])
+plot.plot_items(mit100.MLII[:1000])
 
-mark = [vals.index(i) for i in roots]
+qrs_inds[3]
 
-plt.plot(roots,[poly[i] for i in mark], ls="", marker="o", label="points")
+diffs = []
+for i in range(0,len(qrs_inds)-1):
+    diff=qrs_inds[i+1] - qrs_inds[i]
+    diffs.append(diff)
 
-plt.show()
+sum(diffs)/len(diffs)
+min(diffs)
+max(diffs)
+
+mitdbls = wfdb.get_record_list("mitdb")
+
+x ,y  = np.unique(diffs, return_counts=True) # counting occurrence of each loan
+plt.scatter(x,y) 
+
+norm_MLII=processing.normalize_bound(MLII, lb=0, ub=1)
+
+mitdblstring = wfdb.get_record_list("mitdb")
+mitdbls = [int(i) for i in mitdbls]
+mitdb = []
+
+for i in mitdbls:
+    mitdb.append(load_mitdb.load_patient_record("mitdb", str(i)))
+
+count = 0
+qrs_r = []
+for i in mitdb:
+    qrs_inds = processing.xqrs_detect(sig=i.MLII, fs=i.fields['fs'])
+    qrs_r.append(qrs_inds)
+
+all_diffs = []
+for i in qrs_r:
+    diffs = []
+    for j in range(0,len(i)-1):
+        diff=i[j+1] - i[j]
+        diffs.append(diff)
+    all_diffs.append(diffs)
+
+all_diffs
+
+all_diffs_np = np.array(all_diffs)
+
+averages = []
+for a in all_diffs:
+    a_sum = sum(a)
+    average = a_sum/len(a)
+    averages.append(average)
+    
+max(averages)
+min(averages)
+
+averages.index(max(averages))
+mitdbls[21]
+
+mit123 = mitdb[21]
+
+diff123 = all_diffs[21]
+x ,y  = np.unique(diff123, return_counts=True) # counting occurrence of each loan
+plt.scatter(x,y) 
+
+mit123.annotated_beat_class
+
+
+
+
+
+        #qrs_sum = sum(i)
+
+

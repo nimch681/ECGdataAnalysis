@@ -15,6 +15,8 @@ import numpy as np
 import os
 import csv
 import math
+import wfdb
+from wfdb import processing
 
 # Show a 2D plot with the data in beat
 def display_signal(beat):
@@ -27,6 +29,7 @@ class Patient_record:
     def __init__(self,filename, database):
         self.database = database
         self.filename = filename
+        self.fields = []
         self.time = []
         self.MLII = []
         self.filtered_MLII = []
@@ -35,6 +38,8 @@ class Patient_record:
         self.annotations = []
         self.annotated_R_poses = []
         self.annotated_beat_class = []
+        self.annotated_p_waves_pos = []
+        self.annotated_t_waves_pos = []
         self.segmented_class_ID = []
         self.segmented_beat_class = []
         self.segmented_R_pos = []
@@ -44,7 +49,7 @@ class Patient_record:
         self.segmented_beat_2 = []
 
     def attribute(self):
-        print("database, filename, time, MLII, filtered_MLII, V1, filtered_V1, annotations, annotated_R_poses, annotated_beat_class, segmented_class_ID, segmented_beat_class,segmented_R_pos, segmented_valid_R, segmented_original_R, segmented_beat_1, segmented_beat_2 ")
+        print("database, filename, fields, time, MLII, filtered_MLII, V1, filtered_V1, annotations, annotated_R_poses, annotated_beat_class, annotated_p_waves_pos, annotated_t_waves_pos, segmented_class_ID, segmented_beat_class,segmented_R_pos, segmented_valid_R, segmented_original_R, segmented_beat_1, segmented_beat_2 ")
         
 
 class ecg_database:
@@ -90,7 +95,7 @@ def load_mitdb():
             fAnnotations.append(file)        
 
     MITBIH_classes = ['N', 'L', 'R', 'e', 'j', 'A', 'a', 'J', 'S', 'V', 'E', 'F']#, 'P', '/', 'f', 'u']
-    AAMI_classes = []
+    AAMI_classes = [] 
     AAMI_classes.append(['N', 'L', 'R'])                    # N
     AAMI_classes.append(['A', 'a', 'J', 'S', 'e', 'j'])     # SVEB 
     AAMI_classes.append(['V', 'E'])                         # VEB
@@ -111,25 +116,31 @@ def load_mitdb():
 def load_patient_record(DB_name, record_number):
     patient_record = Patient_record(record_number, DB_name)
     pathDB = os.getcwd()+'/database/'
+    filename = pathDB + DB_name +"/"+ record_number
+    print(filename)
+    sig, fields = wfdb.rdsamp(filename, channels=[0,1])
     filename = pathDB + DB_name + "/csv/" + record_number +".csv"
     print(filename)
     f = open(filename, "r")
     reader = csv.reader(f, delimiter=',')
     next(reader) # skip first line!
     next(reader)
-    MLII_index = 1
-    V1_index = 2
-    if int(record_number) == 114:
-        MLII_index = 2
-        V1_index = 1
-
-    MLII = []
-    V1 = []
     time = []
+    p_waves_pos = []
+    t_waves_pos =[]
+    MLII_index = 0
+    V1_index = 1
+    if int(record_number) == 114:
+        MLII_index = 1
+        V1_index = 0
+
+    #MLII = []
+    #V1 = []
+    #time = []
     for row in reader:
         time.append((float(row[0])))
-        MLII.append((float(row[MLII_index])))
-        V1.append((float(row[V1_index])))
+        #MLII.append((float(row[MLII_index])))
+        #V1.append((float(row[V1_index])))
     f.close
 
     filename = pathDB + DB_name + "/csv/" + record_number +".txt"
@@ -152,10 +163,28 @@ def load_patient_record(DB_name, record_number):
         annotated_orignal_R_poses.append(int(aS[1]))
         annotated_beat_type.append(str(aS[2]))
 
+    filename = pathDB + DB_name + "/p_t_wave/" + record_number +"pt.csv"
+    print(filename)
+    f = open(filename, "r")
+    reader = csv.reader(f, delimiter=',')
+    for line in reader:
+    
+        if (float(line[0]) == -1):
+            break    
+        p_waves_pos.append(float(line[0]))
+
+    for line in reader:
+        t_waves_pos.append(float(line[0]))
+    
+    f.close
+
     patient_record.filename = record_number
+    patient_record.fields = fields
     patient_record.time = time
-    patient_record.MLII = MLII
-    patient_record.V1 = V1
+    patient_record.annotated_p_waves_pos = p_waves_pos
+    patient_record.annotated_t_waves_pos = t_waves_pos
+    patient_record.MLII = sig[:,MLII_index] 
+    patient_record.V1 = sig[:,V1_index] 
     patient_record.annotations = annotations
     patient_record.annotated_R_poses = annotated_orignal_R_poses
     patient_record.annotated_beat_class = annotated_beat_type
