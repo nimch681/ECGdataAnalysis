@@ -32,6 +32,9 @@ def segment_beat(signal,time,annotations, winL, winR):
         aS = a.split()
             
         pos = int(aS[1])
+        if(pos > len(signal)):
+            break
+            
         originalPos = int(aS[1])
         classAnttd = str(aS[2])
     #originalPos = int(aS[1])
@@ -76,9 +79,9 @@ def segment_beat(signal,time,annotations, winL, winR):
             beat.append((beat_poses,zero,zero))
 
 
-        R_poses.append((pos, signal[pos]))
+        R_poses.append(pos)
         beat_class.append(classAnttd)
-        Original_R_poses.append((originalPos, signal[originalPos]))
+        Original_R_poses.append((originalPos)
         
     
         #Original_R_poses = np.append(Original_R_poses, originalPos)

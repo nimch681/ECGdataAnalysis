@@ -12,16 +12,12 @@ import matplotlib.pyplot as plt
 import wfdb
 from wfdb import processing, plot
 
-mitdblstring = wfdb.get_record_list("mitdb")
-mitdbls = [int(i) for i in mitdblstring]
-mitdb = []
 
-for i in mitdbls:
-    mitdb.append(load_mitdb.load_patient_record("mitdb", str(i)))
-    
-mit100 = mitdb[0]
-#mitdb = load_mitdb.load_mitdb()
-#mit100 = load_mitdb.load_patient_record("mitdb","100")
+mitdb = load_mitdb.load_mitdb()
+mit100 = mitdb.patient_records[0]
+
+#segmenting record 100
+"""
 load_mitdb.display_signal_in_seconds(mit100,mit100.MLII,3)
 filter_ecg = ECG_denoising.ECG_FIR_filter()
 mit100.filtered_MLII = ECG_denoising.denoising_signal_FIR(mit100.MLII,filter_ecg)
@@ -38,8 +34,12 @@ np_valid_r = np.array(mit100.segmented_valid_R)
 #np100R = np.append(np100R, np_r_poses, axis=1)
 np100R = np.column_stack((np100R, np_r_poses))
 np100R = np.column_stack((np100R, np_valid_r))
+"""
+
+#checking highest peaks in record 100
 
 
+"""
 count = 0
 for i in range(0,len(np100R)):
     ori_R =np100R[i,1]
@@ -48,9 +48,11 @@ for i in range(0,len(np100R)):
         count = count+ 1
 
 percent = (len(np100R)/count) * 100
-
+"""
+#resampling code
+"""
 Resampled_MLII = []
-    
+
 def resample_signal(fs):
         factor = 360.0 / fs
         num_samples = int(round(factor * len(mit100.MLII)))
@@ -62,12 +64,10 @@ Resampled_MLII = resample(mit100.MLII, num_samples)
 
 index, value = max(enumerate(MLII), key=operator.itemgetter(1))
 
-np100R.shape
-np100R
+"""
 
 
 
-#load_mitdb.display_signal_in_seconds(mit100,mit100.filtered_MLII,3)
 
 
 

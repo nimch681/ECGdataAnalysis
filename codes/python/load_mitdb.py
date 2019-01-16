@@ -53,11 +53,10 @@ class Patient_record:
         
 
 class ecg_database:
-    def __init__(self, database):
-        # Instance atributes
-        self.filename = []
+    def __init__(self,database):
+        # Instance atributes v
         self.database = database
-        self.Annotations =[]
+        self.patient_records = []
         self.MITBIH_classes = []
         self.AAMI_classes = []
         #self.beat = np.empty([]) # record, beat, lead
@@ -67,32 +66,21 @@ class ecg_database:
         #self.orig_R_pos = []
 
     def attribute(self):
-        print("filename, database, Annotations, MITBIH_classes, AAMI_classes ")
+        print(" database, patient_records, MITBIH_classes, AAMI_classes ")
         
 
 
 def load_mitdb():
+
+
+    mitdblstring = wfdb.get_record_list("mitdb")
+    mitdbls = [int(i) for i in mitdblstring]
+    mitdb = []
+
+
+    for i in mitdbls:
+        mitdb.append(load_patient_record("mitdb", str(i)))       
     my_db = ecg_database("mitdb")
-    pathDB = os.getcwd()+'/database/'
-    DB_name = 'mitdb'
-    fs = 360
-    jump_lines = 1
-
-    #Read files: signal (.csv )  annotations (.txt)    
-    fRecords = list()
-    fAnnotations = list()
-
-    lst = os.listdir(pathDB + DB_name + "/csv")
-    lst.sort()
-    fRecords = list()
-    fAnnotations = list()
-    for file in lst:
-        if file.endswith(".csv"):
-       
-            fRecords.append(file)
-        elif file.endswith(".txt"):
-      
-            fAnnotations.append(file)        
 
     MITBIH_classes = ['N', 'L', 'R', 'e', 'j', 'A', 'a', 'J', 'S', 'V', 'E', 'F']#, 'P', '/', 'f', 'u']
     AAMI_classes = [] 
@@ -101,11 +89,9 @@ def load_mitdb():
     AAMI_classes.append(['V', 'E'])                         # VEB
     AAMI_classes.append(['F'])                              # F
 
-    RAW_signals = []
-    r_index = 0
+   
 
-    my_db.filename = fRecords
-    my_db.Annotations = fAnnotations
+    my_db.patient_records = mitdb
     my_db.MITBIH_classes = MITBIH_classes
     my_db.AAMI_classes = AAMI_classes
     #my_db.Annotations = annotations  
@@ -205,8 +191,6 @@ def display_signal_in_seconds(patient_record,signal, time_in_second):
     display_signal(new_signal)
 
 
-if __name__ == "__main__":
-    my_mitdb = load_mitdb()
     
 
 

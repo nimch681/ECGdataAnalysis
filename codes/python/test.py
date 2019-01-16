@@ -7,30 +7,19 @@ import sys
 import csv
 import os
 import operator
+from numpy import array
+import sys
+import csv
+import os
+import matplotlib.pyplot as plt
+import wfdb
+from wfdb import processing, plot
 
  
-mit100 = load_mitdb.load_patient_record("mitdb","100")
-filter_ecg = ECG_denoising.ECG_FIR_filter()
-mit100.filtered_MLII = ECG_denoising.denoising_signal_FIR(mit100.MLII,filter_ecg)
-mit100.filtered_V1 = ECG_denoising.denoising_signal_FIR(mit100.V1,filter_ecg)
-#mit100.segmented_beat_1, mit100.segmented_class_ID, mit100.segmented_beat_class, mit100.segmented_R_pos = shs.segment_beat(mit100.filtered_MLII, mit100.time, mit100.annotations, 90, 90)
-beats = mit100.beat_1
 
-beat_limits = []
-
-for i in range(0, len(beats)):
-    limit_1 = beats[i][0][0]
-    limit_2 = beats[i][0][len(beats[i][0])-1]
-    beat_limits.append((limit_1,limit_2))
-
-beat_time_limits = []
-
-for i in range(0, len(beats)):
-    limit_1 = beats[i][1][0]
-    limit_2 = beats[i][1][len(beats[i][1])-1]
-    beat_time_limits.append((limit_1,limit_2))
+#complicated QRS detector
     
-
+"""
 #mit100.beat_1[0][0:len(mit100.beat_1[0])]
 #numbers = list(range(1, 1000))
 #numbers
@@ -55,7 +44,7 @@ MLII = mit100.filtered_MLII
 
 def detect_peaks(signal):
     """
-    Method responsible for extracting peaks from loaded ECG measurements data through measurements processing.
+    #Method responsible for extracting peaks from loaded ECG measurements data through measurements processing.
     """
     # Extract measurements from loaded ECG data.
     ecg_measurements = signal
@@ -87,15 +76,15 @@ def detect_peaks(signal):
     return detected_peaks_indices, detected_peaks_values
 
 def findpeaks(data, spacing=1, limit=None):
-    """
-        Janko Slavic peak detection algorithm and implementation.
-        https://github.com/jankoslavic/py-tools/tree/master/findpeaks
-        Finds peaks in `data` which are of `spacing` width and >=`limit`.
-        :param ndarray data: data
-        :param float spacing: minimum spacing to the next peak (should be 1 or more)
-        :param float limit: peaks should have value greater or equal
-        :return array: detected peaks indexes array
-    """
+    
+        #Janko Slavic peak detection algorithm and implementation.
+        #https://github.com/jankoslavic/py-tools/tree/master/findpeaks
+        #Finds peaks in `data` which are of `spacing` width and >=`limit`.
+        #:param ndarray data: data
+        #:param float spacing: minimum spacing to the next peak (should be 1 or more)
+        #:param float limit: peaks should have value greater or equal
+        #:return array: detected peaks indexes array
+
     len = data.size
     x = np.zeros(len + 2 * spacing)
     x[:spacing] = data[0] - 1.e-6
@@ -131,7 +120,7 @@ def detect_qrs(signal,detected_peaks_indices, detected_peaks_values):
     qrs_peaks_indices = np.array([], dtype=int)
     noise_peaks_indices = np.array([], dtype=int)
     """
-    Method responsible for classifying detected ECG measurements peaks either as noise or as QRS complex (heart beat).
+    #Method responsible for classifying detected ECG measurements peaks either as noise or as QRS complex (heart beat).
     """
     for detected_peak_index, detected_peaks_value in zip(detected_peaks_indices, detected_peaks_values):
 
@@ -188,15 +177,13 @@ plot_points(axis=axarr[0], values=ecg_data_detected, indices=qrs_peaks_indices)
 
 plt.show()
 plt.close()
+
+"""
     
+##testing codea
 
 
-plt.plot(MLII[:10000], '-gD',markevery=MLII[qrs_peaks_indices[:10]])
-plt.show()
-
-p_wave_pos = mit100.annotated_p_waves_pos
-t_wave_pos = mit100.annotated_t_waves_pos
-
+"""
 qrs_inds = processing.xqrs_detect(sig=MLII, fs=mit100.fields['fs'])
 qrs_locs = processing.gqrs_detect(MLII, fs=360)
 
@@ -277,4 +264,4 @@ mit123.annotated_beat_class
 
         #qrs_sum = sum(i)
 
-
+"""
