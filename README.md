@@ -2,7 +2,10 @@
 
 Master project for analysing ECG data using machine learning techniques.
 Started in July 2018. 
-Purpose for the project was to learn and improve on aspects of current ECG analysis techniques. 
+Purpose for the project was to learn and improve on aspects of current ECG analysis techniques.
+
+Blog post and progress report : https://chontiramaster.blogspot.com/?zx=c376798730ec5246
+ 
 
 Referece softwares:
 WFDB from PhysioNet and https://github.com/mondejar/ecg-classification
