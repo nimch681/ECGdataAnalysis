@@ -81,9 +81,9 @@ def segment_beat(signal,time,annotations, winL, winR):
 
         R_poses.append(pos)
         beat_class.append(classAnttd)
-        Original_R_poses.append((originalPos)
+        Original_R_poses.append(originalPos)
         
     
-        #Original_R_poses = np.append(Original_R_poses, originalPos)
+
     return beat, class_ID, beat_class, R_poses,valid_R, Original_R_poses
     
