@@ -25,7 +25,7 @@ filter_ecg = ECG_denoising.ECG_FIR_filter()
 filtered_MLII_10000 = ECG_denoising.denoising_signal_FIR(mit1_10000,filter_ecg)
 
 #mit100.filtered_V1 = ECG_denoising.denoising_signal_FIR(mit100.V1,filter_ecg)
-segmented_beat_1, segmented_beat_class, segmented_class_ID, segmented_R_pos  = segment_beat(filtered_MLII_10000, mit100.annotations,qrs_inds, 90, 90)
+segmented_beat_1, segmented_beat_class, segmented_class_ID, segmented_R_pos  = shs.segment_beat_from_annotation(filtered_MLII_10000, mit100.annotations, 90, 90)
 
 
 

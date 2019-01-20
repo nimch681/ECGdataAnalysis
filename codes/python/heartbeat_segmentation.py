@@ -14,7 +14,7 @@ from wfdb import processing
 
 
 def segment(signal,pos,winL,winR,size_RR_max):
-    index, value = max(enumerate(signal[pos - size_RR_max : pos + size_RR_max]), key=operator.itemgetter(1))
+    index, value  = max(enumerate(signal[pos - size_RR_max : pos + size_RR_max]), key=operator.itemgetter(1))
     pos = (pos - size_RR_max) + index
     beat_poses = list(range(pos - winL, pos + winR))
     beat_poses = [int(i) for i in beat_poses]
@@ -65,6 +65,7 @@ def segment_beat_from_annotation(signal,annotations, winL=180, winR=180,size_RR_
             if (is_class_MIT(classAnttd)):
                 if(pos > winL and pos < (len(signal) - winR)):
                     beat.append(beat_poses)
+                    R_poses.append(pos)
                     class_AAMI = check_class_AAMI(classAnttd, class_AAMI)
                     class_ID.append(class_AAMI)
                     beat_class.append(classAnttd)
@@ -84,8 +85,8 @@ def segment_beat(signal,r_poses, winL=180, winR=180,size_RR_max=35):
             
 
 
-def xqrs_segment_beat(signals, fs, winL=180, winR=180, size_RR_max = 35):
-    r_poses = processing.xqrs_detect(sig=signals, fs=fs)
+def xqrs_segment_beat(signal, fs, winL=180, winR=180, size_RR_max = 35):
+    r_poses = processing.xqrs_detect(sig=signal, fs=fs)
 
     beat = []
     for pos in r_poses:
