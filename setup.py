@@ -1,4 +1,4 @@
-from codes.python import simple_heartbeat_segmentation as shs
+#from codes.python import simple_heartbeat_segmentation as shs
 from codes.python import load_mitdb,ECG_denoising
 from codes.python import QRS_detector
 import numpy as np
@@ -11,10 +11,23 @@ import os
 import matplotlib.pyplot as plt
 import wfdb
 from wfdb import processing, plot
+from codes.python import heartbeat_segmentation as shs
 
 
-mitdb = load_mitdb.load_mitdb()
-mit100 = mitdb.patient_records[0]
+#mitdb = load_mitdb.load_mitdb()
+
+mit100 = load_mitdb.load_patient_record("mitdb","100")
+mit1_10000 = mit100.MLII
+
+qrs_inds = processing.xqrs_detect(sig=mit1_10000, fs=mit100.fields['fs'])
+
+filter_ecg = ECG_denoising.ECG_FIR_filter()
+filtered_MLII_10000 = ECG_denoising.denoising_signal_FIR(mit1_10000,filter_ecg)
+
+#mit100.filtered_V1 = ECG_denoising.denoising_signal_FIR(mit100.V1,filter_ecg)
+segmented_beat_1, segmented_beat_class, segmented_class_ID, segmented_R_pos  = segment_beat(filtered_MLII_10000, mit100.annotations,qrs_inds, 90, 90)
+
+
 
 #segmenting record 100
 """

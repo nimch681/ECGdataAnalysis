@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import wfdb
 from wfdb import processing, plot
 
- 
+
 
 #complicated QRS detector
     
