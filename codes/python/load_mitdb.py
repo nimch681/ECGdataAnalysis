@@ -177,7 +177,8 @@ def load_patient_record(DB_name, record_number):
 
     return patient_record
 
-
+def load_cases_from_list(database,patient_list):
+    return patient_list
 
 def display_signal_in_seconds(patient_record,signal, time_in_second):
     sum = 0
