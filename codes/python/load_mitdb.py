@@ -11,8 +11,10 @@ Mondejar Guerra, Victor M.
 
 
 import matplotlib.pyplot as plt
-import numpy as np
 import os
+from codes.python import heartbeat_segmentation as hs
+from codes.python import ECG_denoising as denoise
+import numpy as np
 import csv
 import math
 import wfdb
@@ -43,15 +45,51 @@ class Patient_record:
         self.segmented_class_ID = []
         self.segmented_beat_class = []
         self.segmented_R_pos = []
-        self.segmented_valid_R = []
-        self.segmented_original_R = []
         self.segmented_beat_1 = []
         self.segmented_beat_2 = []
 
     def attribute(self):
         print("database, filename, fields, time, MLII, filtered_MLII, V1, filtered_V1, annotations, annotated_R_poses, annotated_beat_class, annotated_p_waves_pos, annotated_t_waves_pos, segmented_class_ID, segmented_beat_class,segmented_R_pos, segmented_valid_R, segmented_original_R, segmented_beat_1, segmented_beat_2 ")
-        
+    
+    def get_beat_1(self):
+        return self.segmented_beat_1
 
+    def get_beat_2(self):
+        return self.segmented_beat_2
+    
+    def get_r_pos(self):
+        return self.segmented_R_pos
+    
+    def set_segmented_beats_r_pos(self,filtered=True,is_MLII=True,is_V1=True,winL=180,winR=180,rr_max = 35):
+        signal_MLII = []
+        signal_V1 = []
+        segmented_beat_class = []
+        segmented_class_ID=[]
+        segmented_R_pos = []
+        if(filtered == True):
+            filter_FIR = denoise.ECG_FIR_filter()
+            if(is_MLII == True):
+                signal_MLII = denoise.denoising_signal_FIR(self.MLII,filter_FIR)
+                self.filtered_MLII = signal_MLII
+            if(is_V1 == True):
+                signal_V1 =  denoise.denoising_signal_FIR(self.V1,filter_FIR)
+                self.filtered_V1 = signal_V1
+        else:
+            signal_MLII = self.MLII
+            signal_V1 = self.V1
+        if(is_V1 == True):
+            segmented_beat_2, segmented_beat_class, segmented_class_ID, segmented_R_pos  = hs.segment_beat_from_annotation(signal_V1, self.annotations, winL, winR, rr_max)
+            self.segmented_beat_2 = segmented_beat_2
+        if(is_MLII == True):
+            segmented_beat_1, segmented_beat_class, segmented_class_ID, segmented_R_pos  = hs.segment_beat_from_annotation(signal_MLII, self.annotations, winL, winR, rr_max)
+            self.segmented_beat_1 = segmented_beat_1
+        
+        self.segmented_beat_class = segmented_beat_class
+        self.segmented_class_ID = segmented_class_ID
+        self.segmented_R_pos = segmented_R_pos
+            
+        
+ 
 class ecg_database:
     def __init__(self,database):
         # Instance atributes v
@@ -174,11 +212,16 @@ def load_patient_record(DB_name, record_number):
     patient_record.annotations = annotations
     patient_record.annotated_R_poses = annotated_orignal_R_poses
     patient_record.annotated_beat_class = annotated_beat_type
+    
 
     return patient_record
 
 def load_cases_from_list(database,patient_list):
-    return patient_list
+    record_list = []
+    for p in patient_list:
+        patient = load_patient_record(database, str(p))
+        record_list.append(patient)
+    return record_list
 
 def display_signal_in_seconds(patient_record,signal, time_in_second):
     sum = 0
@@ -190,6 +233,9 @@ def display_signal_in_seconds(patient_record,signal, time_in_second):
             new_signal.append(signal[t])
 
     display_signal(new_signal)
+
+
+
 
 
     

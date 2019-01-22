@@ -32,7 +32,7 @@ def check_class_AAMI(classAnttd, class_AAMI):
     AAMI_classes.append(['N', 'L', 'R'])                    # N
     AAMI_classes.append(['A', 'a', 'J', 'S', 'e', 'j'])     # SVEB 
     AAMI_classes.append(['V', 'E'])                         # VEB
-    AAMI_classes.append(['F']) 
+    AAMI_classes.append(['F'])
     for i in range(0,len(AAMI_classes)):
 
         if classAnttd in AAMI_classes[i]:
@@ -61,14 +61,14 @@ def segment_beat_from_annotation(signal,annotations, winL=180, winR=180,size_RR_
 
         if pos > size_RR_max and pos < (len(signal) - size_RR_max):
             beat_poses=segment(signal,pos,winL,winR, size_RR_max)
-            
-            if (is_class_MIT(classAnttd)):
-                if(pos > winL and pos < (len(signal) - winR)):
-                    beat.append(beat_poses)
-                    R_poses.append(pos)
-                    class_AAMI = check_class_AAMI(classAnttd, class_AAMI)
-                    class_ID.append(class_AAMI)
-                    beat_class.append(classAnttd)
+
+            if(pos > winL and pos < (len(signal) - winR)):
+                
+                beat.append(beat_poses)
+                R_poses.append(pos)
+                class_AAMI = check_class_AAMI(classAnttd, class_AAMI)
+                class_ID.append(class_AAMI)
+                beat_class.append(classAnttd)
 
     return beat, beat_class, class_ID, R_poses
 

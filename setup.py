@@ -17,6 +17,7 @@ from codes.python import heartbeat_segmentation as shs
 #mitdb = load_mitdb.load_mitdb()
 
 mit100 = load_mitdb.load_patient_record("mitdb","100")
+mit100.set_segmented_beats_r_pos()
 mit1_10000 = mit100.MLII
 
 qrs_inds = processing.xqrs_detect(sig=mit1_10000, fs=mit100.fields['fs'])
@@ -27,10 +28,12 @@ filtered_MLII_10000 = ECG_denoising.denoising_signal_FIR(mit1_10000,filter_ecg)
 #mit100.filtered_V1 = ECG_denoising.denoising_signal_FIR(mit100.V1,filter_ecg)
 segmented_beat_1, segmented_beat_class, segmented_class_ID, segmented_R_pos  = shs.segment_beat_from_annotation(filtered_MLII_10000, mit100.annotations, 90, 90)
 
+patient_list = ["100","101","102"]
 
+record_list = load_mitdb.load_cases_from_list("mitdb", patient_list)
 
 #segmenting record 100
-"""
+"""  
 load_mitdb.display_signal_in_seconds(mit100,mit100.MLII,3)
 filter_ecg = ECG_denoising.ECG_FIR_filter()
 mit100.filtered_MLII = ECG_denoising.denoising_signal_FIR(mit100.MLII,filter_ecg)
