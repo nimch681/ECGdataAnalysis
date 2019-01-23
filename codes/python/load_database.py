@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 
 """
-mit_db.py
-Description:
-Contains the classes for store the MITBIH database and some utils
-VARPA, University of Coruna
-Mondejar Guerra, Victor M.
-24 Oct 2017
+load_database.py written by Chontira Chumsaeng
+TODO adapted from _______________
 """
 
 
@@ -102,10 +98,20 @@ class ecg_database:
         #self.valid_R = []       
         #self.R_pos = []
         #self.orig_R_pos = []
+    
+    def set_MIT_class(self,mitbih_classes):
+        self.MITBIH_classe = mitbih_classes
+    
+    def set_AAMI_classes(self, classes):
+        self.AAMI_classes = classes
 
     def attribute(self):
         print(" database, patient_records, MITBIH_classes, AAMI_classes ")
         
+
+def create_ecg_database(database,patient_records):
+    db = ecg_database(database)
+    db.patient_records = patient_records
 
 
 def load_mitdb():

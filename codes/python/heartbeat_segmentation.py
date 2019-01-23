@@ -4,7 +4,7 @@
 simple_heartbeat_segmentation.py
 Description:
 contains code for simple heartbeat segmentation
-Borrowed and slighly changed the code from VARPA, University of Coruna: Mondejar Guerra, Victor M.
+Adapted from the code from VARPA, University of Coruna: Mondejar Guerra, Victor M.
 24 Oct 2017
 """
 import operator

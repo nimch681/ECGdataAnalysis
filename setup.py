@@ -1,5 +1,5 @@
 #from codes.python import simple_heartbeat_segmentation as shs
-from codes.python import load_mitdb,ECG_denoising
+from codes.python import load_database,ECG_denoising
 from codes.python import QRS_detector
 import numpy as np
 from scipy.signal import resample
