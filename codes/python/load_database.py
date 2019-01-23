@@ -62,27 +62,39 @@ class Patient_record:
         segmented_beat_class = []
         segmented_class_ID=[]
         segmented_R_pos = []
+        print("Start segmenting records: "+ self.filename)
         if(filtered == True):
             filter_FIR = denoise.ECG_FIR_filter()
             if(is_MLII == True):
                 signal_MLII = denoise.denoising_signal_FIR(self.MLII,filter_FIR)
                 self.filtered_MLII = signal_MLII
+                print("Filtered MLII records from : "+ self.filename)
+
             if(is_V1 == True):
                 signal_V1 =  denoise.denoising_signal_FIR(self.V1,filter_FIR)
                 self.filtered_V1 = signal_V1
+                print("Filtered V1 records from : "+ self.filename)
+            
         else:
             signal_MLII = self.MLII
             signal_V1 = self.V1
         if(is_V1 == True):
+            print("start segmenting V1.")
             segmented_beat_2, segmented_beat_class, segmented_class_ID, segmented_R_pos  = hs.segment_beat_from_annotation(signal_V1, self.annotations, winL, winR, rr_max)
             self.segmented_beat_2 = segmented_beat_2
+            print("Finished segmenting V1.")
         if(is_MLII == True):
+            print("start segmenting MLII.")
             segmented_beat_1, segmented_beat_class, segmented_class_ID, segmented_R_pos  = hs.segment_beat_from_annotation(signal_MLII, self.annotations, winL, winR, rr_max)
             self.segmented_beat_1 = segmented_beat_1
-        
+            print("Finished segmenting MLII.")
+
         self.segmented_beat_class = segmented_beat_class
         self.segmented_class_ID = segmented_class_ID
         self.segmented_R_pos = segmented_R_pos
+
+        print("Segmenting record "+ self.filename + " completes.")
+
             
         
  
@@ -91,6 +103,7 @@ class ecg_database:
         # Instance atributes v
         self.database = database
         self.patient_records = []
+        self.filenames = []
         self.MITBIH_classes = []
         self.AAMI_classes = []
         #self.beat = np.empty([]) # record, beat, lead
@@ -107,11 +120,21 @@ class ecg_database:
 
     def attribute(self):
         print(" database, patient_records, MITBIH_classes, AAMI_classes ")
+    
+    def segment_beats(self,filtered=True,is_MLII=True,is_V1=True,winL=180,winR=180,rr_max = 35):
+        for record in self.patient_records:
+            record.set_segmented_beats_r_pos(filtered,is_MLII,is_V1,winL,winR,rr_max)
+        
+        print("Segmenting beats complete")
+
         
 
 def create_ecg_database(database,patient_records):
     db = ecg_database(database)
-    db.patient_records = patient_records
+    record_list = load_cases_from_list(database, patient_records)
+    db.patient_records = record_list
+    db.filenames = patient_records
+    return db
 
 
 def load_mitdb():
@@ -138,6 +161,7 @@ def load_mitdb():
     my_db.patient_records = mitdb
     my_db.MITBIH_classes = MITBIH_classes
     my_db.AAMI_classes = AAMI_classes
+    my_db.filenames = mitdblstring
     #my_db.Annotations = annotations  
     return my_db
 

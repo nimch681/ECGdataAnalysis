@@ -16,9 +16,13 @@ from codes.python import heartbeat_segmentation as shs
 
 #mitdb = load_mitdb.load_mitdb()
 
-mit100 = load_mitdb.load_patient_record("mitdb","100")
+mit100 = load_database.load_patient_record("mitdb","100")
 mit100.set_segmented_beats_r_pos()
+r_pos = np.array(segmented_R_pos)
+wfdb.plot_items(signal=filtered_MLII_10000, ann_samp=[r_pos])
 mit1_10000 = mit100.MLII
+
+mit100.segmented_R_pos
 
 qrs_inds = processing.xqrs_detect(sig=mit1_10000, fs=mit100.fields['fs'])
 
@@ -30,7 +34,13 @@ segmented_beat_1, segmented_beat_class, segmented_class_ID, segmented_R_pos  = s
 
 patient_list = ["100","101","102"]
 
-record_list = load_mitdb.load_cases_from_list("mitdb", patient_list)
+DB1 = load_database.create_ecg_database("mitdb",patient_list)
+
+DB1.segment_beats()
+
+r_pos = np.array(DB1.patient_records[2].segmented_R_pos)
+
+wfdb.plot_items(signal=DB1.patient_records[2].MLII, ann_samp=[r_pos])
 
 #segmenting record 100
 """  
