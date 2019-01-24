@@ -18,20 +18,6 @@ from codes.python import heartbeat_segmentation as shs
 
 mit100 = load_database.load_patient_record("mitdb","100")
 mit100.set_segmented_beats_r_pos()
-r_pos = np.array(segmented_R_pos)
-wfdb.plot_items(signal=filtered_MLII_10000, ann_samp=[r_pos])
-mit1_10000 = mit100.MLII
-
-mit100.segmented_R_pos
-
-qrs_inds = processing.xqrs_detect(sig=mit1_10000, fs=mit100.fields['fs'])
-
-filter_ecg = ECG_denoising.ECG_FIR_filter()
-filtered_MLII_10000 = ECG_denoising.denoising_signal_FIR(mit1_10000,filter_ecg)
-
-#mit100.filtered_V1 = ECG_denoising.denoising_signal_FIR(mit100.V1,filter_ecg)
-segmented_beat_1, segmented_beat_class, segmented_class_ID, segmented_R_pos  = shs.segment_beat_from_annotation(filtered_MLII_10000, mit100.annotations, 90, 90)
-
 patient_list = ["100","101","102"]
 
 DB1 = load_database.create_ecg_database("mitdb",patient_list)
@@ -41,6 +27,14 @@ DB1.segment_beats()
 r_pos = np.array(DB1.patient_records[2].segmented_R_pos)
 
 wfdb.plot_items(signal=DB1.patient_records[2].MLII, ann_samp=[r_pos])
+
+time100 = np.array(mit100.segmented_beat_time)
+beats100 = np.array(mit100.segmented_beat_1)
+beat_index = np.array(mit100.segmented_beat_index)
+
+wfdb.plot_items(signal=mit100.segmented_beat_1[0])
+
+load_database.display_signal(mit100.segmented_beat_1[2])
 
 #segmenting record 100
 """  

@@ -41,6 +41,8 @@ class Patient_record:
         self.segmented_class_ID = []
         self.segmented_beat_class = []
         self.segmented_R_pos = []
+        self.segmented_beat_time = []
+        self.segmented_beat_index = []
         self.segmented_beat_1 = []
         self.segmented_beat_2 = []
 
@@ -56,12 +58,14 @@ class Patient_record:
     def get_r_pos(self):
         return self.segmented_R_pos
     
-    def set_segmented_beats_r_pos(self,filtered=True,is_MLII=True,is_V1=True,winL=180,winR=180,rr_max = 35):
+    def set_segmented_beats_r_pos(self,filtered=True,is_MLII=True,is_V1=False,winL=180,winR=180,rr_max = 35):
         signal_MLII = []
         signal_V1 = []
         segmented_beat_class = []
         segmented_class_ID=[]
         segmented_R_pos = []
+        beat_index = []
+        times= []
         print("Start segmenting records: "+ self.filename)
         if(filtered == True):
             filter_FIR = denoise.ECG_FIR_filter()
@@ -80,15 +84,16 @@ class Patient_record:
             signal_V1 = self.V1
         if(is_V1 == True):
             print("start segmenting V1.")
-            segmented_beat_2, segmented_beat_class, segmented_class_ID, segmented_R_pos  = hs.segment_beat_from_annotation(signal_V1, self.annotations, winL, winR, rr_max)
+            segmented_beat_2, times,beat_index, segmented_beat_class, segmented_class_ID, segmented_R_pos  = hs.segment_beat_from_annotation(signal_V1, self.time, self.annotations, winL, winR, rr_max)
             self.segmented_beat_2 = segmented_beat_2
             print("Finished segmenting V1.")
         if(is_MLII == True):
             print("start segmenting MLII.")
-            segmented_beat_1, segmented_beat_class, segmented_class_ID, segmented_R_pos  = hs.segment_beat_from_annotation(signal_MLII, self.annotations, winL, winR, rr_max)
+            segmented_beat_1,times,beat_index, segmented_beat_class, segmented_class_ID, segmented_R_pos  = hs.segment_beat_from_annotation(signal_MLII, self.time, self.annotations, winL, winR, rr_max)
             self.segmented_beat_1 = segmented_beat_1
             print("Finished segmenting MLII.")
-
+        self.segmented_beat_time = times
+        self.segmented_beat_index = beat_index
         self.segmented_beat_class = segmented_beat_class
         self.segmented_class_ID = segmented_class_ID
         self.segmented_R_pos = segmented_R_pos
@@ -106,6 +111,7 @@ class ecg_database:
         self.filenames = []
         self.MITBIH_classes = []
         self.AAMI_classes = []
+        self.data_for_classification = []
         #self.beat = np.empty([]) # record, beat, lead
         #self.class_ID = []   
         #self.valid_R = []       
@@ -121,11 +127,17 @@ class ecg_database:
     def attribute(self):
         print(" database, patient_records, MITBIH_classes, AAMI_classes ")
     
-    def segment_beats(self,filtered=True,is_MLII=True,is_V1=True,winL=180,winR=180,rr_max = 35):
+    def segment_beats(self,filtered=True,is_MLII=True,is_V1=False,winL=180,winR=180,rr_max = 35):
+
+        
         for record in self.patient_records:
             record.set_segmented_beats_r_pos(filtered,is_MLII,is_V1,winL,winR,rr_max)
-        
+ 
         print("Segmenting beats complete")
+
+    
+
+
 
         
 

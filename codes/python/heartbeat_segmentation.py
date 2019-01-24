@@ -41,9 +41,11 @@ def check_class_AAMI(classAnttd, class_AAMI):
     return class_AAMI
 
 
-def segment_beat_from_annotation(signal,annotations, winL=180, winR=180,size_RR_max=35):
+def segment_beat_from_annotation(signal,time,annotations, winL=180, winR=180,size_RR_max=35):
     class_ID = []
-    beat = []
+    beats = []
+    times = []
+    beat_index = []
     R_poses = []
     beat_class = []
     class_AAMI = -1
@@ -61,16 +63,19 @@ def segment_beat_from_annotation(signal,annotations, winL=180, winR=180,size_RR_
 
         if pos > size_RR_max and pos < (len(signal) - size_RR_max):
             beat_poses=segment(signal,pos,winL,winR, size_RR_max)
+            beat = list(signal[beat_poses[0] : beat_poses[len(beat_poses)-1]+1])
+            time_beat = list(time[beat_poses[0] : beat_poses[len(beat_poses)-1]+1])
 
             if(pos > winL and pos < (len(signal) - winR)):
-                
-                beat.append(beat_poses)
+                beat_index.append(beat_poses)
+                beats.append(beat)
+                times.append(time_beat)
                 R_poses.append(pos)
                 class_AAMI = check_class_AAMI(classAnttd, class_AAMI)
                 class_ID.append(class_AAMI)
                 beat_class.append(classAnttd)
 
-    return beat, beat_class, class_ID, R_poses
+    return beats,times,beat_index, beat_class, class_ID, R_poses
 
 
 
