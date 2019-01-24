@@ -18,7 +18,7 @@ def segment(signal,pos,winL,winR,size_RR_max):
     pos = (pos - size_RR_max) + index
     beat_poses = list(range(pos - winL, pos + winR))
     beat_poses = [int(i) for i in beat_poses]
-    return beat_poses
+    return beat_poses,pos
 
 def is_class_MIT(classAnttd):
     MITBIH_classes = ['N', 'L', 'R', 'e', 'j', 'A', 'a', 'J', 'S', 'V', 'E', 'F']#, 'P', '/', 'f', 'u']
@@ -62,7 +62,7 @@ def segment_beat_from_annotation(signal,time,annotations, winL=180, winR=180,siz
         classAnttd = str(aS[2])
 
         if pos > size_RR_max and pos < (len(signal) - size_RR_max):
-            beat_poses=segment(signal,pos,winL,winR, size_RR_max)
+            beat_poses,pos=segment(signal,pos,winL,winR, size_RR_max)
             beat = list(signal[beat_poses[0] : beat_poses[len(beat_poses)-1]+1])
             time_beat = list(time[beat_poses[0] : beat_poses[len(beat_poses)-1]+1])
 
