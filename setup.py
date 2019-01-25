@@ -16,8 +16,6 @@ from codes.python import heartbeat_segmentation as shs
 
 #mitdb = load_mitdb.load_mitdb()
 
-mit100 = load_database.load_patient_record("mitdb","100")
-mit100.set_segmented_beats_r_pos()
 
 
 
@@ -47,10 +45,22 @@ DB2.segment_beats()
 
 
 
-DBn1 = list()
+
+mit100 = load_database.load_patient_record("mitdb","100")
+mit100.set_segmented_beats_r_pos()
+
+
+columns = len(mit100.segmented_beat_time[0]) + len(mit100.segmented_beat_1[0]) + len(mit100.segmented_beat_class[0])
+rows = 0
+for patient in DB1.patient_records:
+        rows += len(patient.segmented_beat_time)
 
 
 
+DBn1 = np.zeros((rows,columns),dtype=object)
+
+
+row_count = 0
 
 for patient in DB1.patient_records:
         
@@ -65,8 +75,11 @@ for patient in DB1.patient_records:
                         #print(patient.filename)
                         #print(i)
                         #mit207 = patient
+                
                 row.extend(patient.segmented_beat_class[i])
-                DBn1.append(row)
+                DBn1[row_count,0:columns] = row
+                #print(DBn1[row_count])
+                row_count += 1
                 
                 #class_lens.append(len(patient.segmented_beat_class[i]))
                 #if(i == 0):
@@ -74,7 +87,6 @@ for patient in DB1.patient_records:
                 #else:
                         #DBn1 = np.vstack((DBn1, row))
 
-DB1list = np.array(DBn1)
 
 """
 wfdb.plot_items(signal=mit207.MLII)
