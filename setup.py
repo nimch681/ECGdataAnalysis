@@ -42,34 +42,39 @@ patient_list_1 = ["101","106","108","109","112","114","115","116","118","119","1
 patient_list_2 = ["100","103","105","111","113","117","121","123","200","202","210","212","213","214","219","221","222","228","231","232","233","234"]
 DB1 = load_database.create_ecg_database("mitdb",patient_list_1)
 DB2 = load_database.create_ecg_database("mitdb",patient_list_2)
+DB1.segment_beats()
+DB2.segment_beats()
 
- 
 
-DB1list = list()
 
-beats_lens = list()
-time_lens = list()
-class_lens = list()
+DBn1 = list()
 
-mit207 = None
+
+
 
 for patient in DB1.patient_records:
         
         for i in range(0,len(patient.segmented_beat_time)):
+               
                 row = list()
                 row.extend(patient.segmented_beat_time[i])
-                time_lens.append(len(patient.segmented_beat_time[i]))
+                #time_lens.append(len(patient.segmented_beat_time[i]))
                 row.extend(patient.segmented_beat_1[i])
-                beats_lens.append(len(patient.segmented_beat_1[i]))
+                #beats_lens.append(len(patient.segmented_beat_1[i]))
                 #if (len(patient.segmented_beat_1[i]) == 347):
                         #print(patient.filename)
                         #print(i)
                         #mit207 = patient
                 row.extend(patient.segmented_beat_class[i])
-                class_lens.append(len(patient.segmented_beat_class[i]))
-                DB1list.append(row)
+                DBn1.append(row)
+                
+                #class_lens.append(len(patient.segmented_beat_class[i]))
+                #if(i == 0):
+                        #DBn1 = np.array(row, dtype=object)
+                #else:
+                        #DBn1 = np.vstack((DBn1, row))
 
-DBn1 = np.array(DB1list)
+DB1list = np.array(DBn1)
 
 """
 wfdb.plot_items(signal=mit207.MLII)
@@ -102,7 +107,7 @@ for i in range(0, len(time_lens)-1):
 
 """
 
-DB2list = list()
+DBn2 = None
 
 for patient in DB2.patient_records:
         
@@ -111,7 +116,10 @@ for patient in DB2.patient_records:
                 row.extend(patient.segmented_beat_time[i])
                 row.extend(patient.segmented_beat_1[i])
                 row.extend(patient.segmented_beat_class[i])
-                DB2list.append(row)
+                if(i == 0):
+                        DBn2 = np.array(row, dtype=object)
+                else:
+                        DBn2 = np.vstack((DBn2, row))
 
 DBn2 = np.array(DB2list)
 
