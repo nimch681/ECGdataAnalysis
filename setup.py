@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import wfdb
 from wfdb import processing, plot
 from codes.python import heartbeat_segmentation as shs
+from sklearn.decomposition import PCA
 
 
 #mitdb = load_mitdb.load_mitdb()
@@ -45,20 +46,18 @@ DB2.segment_beats()
 
 
 
-
 mit100 = load_database.load_patient_record("mitdb","100")
 mit100.set_segmented_beats_r_pos()
 
 
-columns = len(mit100.segmented_beat_time[0]) + len(mit100.segmented_beat_1[0]) + len(mit100.segmented_beat_class[0])
+columns = len(mit100.segmented_beat_time[0]) + len(mit100.segmented_beat_1[0])
 rows = 0
 for patient in DB1.patient_records:
         rows += len(patient.segmented_beat_time)
 
 
-
 DBn1 = np.zeros((rows,columns),dtype=object)
-
+yn1 = np.zeros((rows,1), dtype=object)
 
 row_count = 0
 
@@ -66,18 +65,19 @@ for patient in DB1.patient_records:
         
         for i in range(0,len(patient.segmented_beat_time)):
                
-                row = list()
-                row.extend(patient.segmented_beat_time[i])
+                row_x = list()
+                row_x.extend(patient.segmented_beat_time[i])
                 #time_lens.append(len(patient.segmented_beat_time[i]))
-                row.extend(patient.segmented_beat_1[i])
+                row_x.extend(patient.segmented_beat_1[i])
                 #beats_lens.append(len(patient.segmented_beat_1[i]))
                 #if (len(patient.segmented_beat_1[i]) == 347):
                         #print(patient.filename)
                         #print(i)
                         #mit207 = patient
                 
-                row.extend(patient.segmented_beat_class[i])
-                DBn1[row_count,0:columns] = row
+
+                yn1[row_count] = patient.segmented_beat_class[i]
+                DBn1[row_count,0:columns] = row_x
                 #print(DBn1[row_count])
                 row_count += 1
                 
@@ -119,21 +119,47 @@ for i in range(0, len(time_lens)-1):
 
 """
 
-DBn2 = None
+columns = len(mit100.segmented_beat_time[0]) + len(mit100.segmented_beat_1[0])
+rows = 0
+for patient in DB2.patient_records:
+        rows += len(patient.segmented_beat_time)
+
+
+DBn2 = np.zeros((rows,columns),dtype=object)
+yn2 = np.zeros((rows,1), dtype=object)
+
+row_count = 0
 
 for patient in DB2.patient_records:
         
         for i in range(0,len(patient.segmented_beat_time)):
+               
                 row = list()
                 row.extend(patient.segmented_beat_time[i])
+                #time_lens.append(len(patient.segmented_beat_time[i]))
                 row.extend(patient.segmented_beat_1[i])
-                row.extend(patient.segmented_beat_class[i])
-                if(i == 0):
-                        DBn2 = np.array(row, dtype=object)
-                else:
-                        DBn2 = np.vstack((DBn2, row))
+                #beats_lens.append(len(patient.segmented_beat_1[i]))
+                #if (len(patient.segmented_beat_1[i]) == 347):
+                        #print(patient.filename)
+                        #print(i)
+                        #mit207 = patient
+                
+                yn2[row_count] = patient.segmented_beat_class[i]
+                DBn2[row_count,0:columns] = row
 
-DBn2 = np.array(DB2list)
+                #print(DBn1[row_count])
+                row_count += 1
+
+
+pca = PCA(n_components=2)
+
+pca.fit_transform(DBn1, y=yn1)
+pca.score(DBn1, y=yn1)
+print(pca.explained_variance_ratio_)
+
+
+
+
 
 
 
