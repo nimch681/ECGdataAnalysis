@@ -13,6 +13,9 @@ import wfdb
 from wfdb import processing, plot
 from codes.python import heartbeat_segmentation as shs
 from sklearn.decomposition import PCA
+from sklearn import svm
+
+import pandas as pd
 
 
 #mitdb = load_mitdb.load_mitdb()
@@ -76,7 +79,7 @@ for patient in DB1.patient_records:
                         #mit207 = patient
                 
 
-                yn1[row_count] = patient.segmented_beat_class[i]
+                yn1[row_count] = patient.segmented_class_ID[i]
                 DBn1[row_count,0:columns] = row_x
                 #print(DBn1[row_count])
                 row_count += 1
@@ -144,7 +147,7 @@ for patient in DB2.patient_records:
                         #print(i)
                         #mit207 = patient
                 
-                yn2[row_count] = patient.segmented_beat_class[i]
+                yn2[row_count] = patient.segmented_class_ID[i]
                 DBn2[row_count,0:columns] = row
 
                 #print(DBn1[row_count])
@@ -153,13 +156,23 @@ for patient in DB2.patient_records:
 
 pca = PCA(n_components=2)
 
-pca.fit_transform(DBn1, y=yn1)
-pca.score(DBn1, y=yn1)
+projected = pca.fit_transform(DBn1)
+pca.score(DBn1)
+yn1=yn1.astype('int')
 print(pca.explained_variance_ratio_)
+targets = pd.DataFrame(data = yn1, columns = ['target'])
+principalDf = pd.DataFrame(data = projected, columns = ['principal component 1', 'principal component 2'])
+finalDf = pd.concat([principalDf,targets], axis = 1)
 
+clf = svm.SVC()
 
+clf.fit(projected, yn1) 
 
-
+unknown = []
+for col in targets:
+    if col == None:
+            unknown.append(col)
+        
 
 
 
