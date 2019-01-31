@@ -79,7 +79,7 @@ class Patient_record:
                 self.filtered_V1 = signal_V1
                 print("Filtered V1 records from : "+ self.filename)
             
-        else:
+        els e:
             signal_MLII = self.MLII
             signal_V1 = self.V1
         if(is_V1 == True):

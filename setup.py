@@ -40,12 +40,7 @@ load_database.display_signal(mit100.segmented_beat_1[2])
 
 
 
-patient_list_1 = ["101","106","108","109","112","114","115","116","118","119","122","124","201","203","205","207","208","209","215","220","223","230"]
-patient_list_2 = ["100","103","105","111","113","117","121","123","200","202","210","212","213","214","219","221","222","228","231","232","233","234"]
-DB1 = load_database.create_ecg_database("mitdb",patient_list_1)
-DB2 = load_database.create_ecg_database("mitdb",patient_list_2)
-DB1.segment_beats()
-DB2.segment_beats()
+ 
 
 
 
@@ -157,8 +152,10 @@ for patient in DB2.patient_records:
 pca = PCA(n_components=2)
 
 projected = pca.fit_transform(DBn1)
-pca.score(DBn1)
+x_test = pca.fit_transform(DBn2)
+
 yn1=yn1.astype('int')
+yn2 = yn2.astype('int')
 print(pca.explained_variance_ratio_)
 targets = pd.DataFrame(data = yn1, columns = ['target'])
 principalDf = pd.DataFrame(data = projected, columns = ['principal component 1', 'principal component 2'])
@@ -166,13 +163,9 @@ finalDf = pd.concat([principalDf,targets], axis = 1)
 
 clf = svm.SVC()
 
-clf.fit(projected, yn1) 
+clf.fit(projected, yn1.ravel()) 
 
-unknown = []
-for col in targets:
-    if col == None:
-            unknown.append(col)
-        
+clf.score(x_test,yn2)
 
 
 
