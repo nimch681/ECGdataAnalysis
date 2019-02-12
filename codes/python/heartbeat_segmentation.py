@@ -26,6 +26,7 @@ def is_class_MIT(classAnttd):
         return True
     else:
         return False
+        return False
 
 def check_class_AAMI(classAnttd, class_AAMI):
     AAMI_classes = []

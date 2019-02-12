@@ -39,13 +39,18 @@ load_database.display_signal(mit100.segmented_beat_1[2])
 
 
 
-
+patient_list_1 = ["101","106","108","109","112","114","115","116","118","119","122","124","201","203","205","207","208","209","215","220","223","230"]
+patient_list_2 = ["100","103","105","111","113","117","121","123","200","202","210","212","213","214","219","221","222","228","231","232","233","234"]
+DB1 = load_database.create_ecg_database("mitdb",patient_list_1)
+DB2 = load_database.create_ecg_database("mitdb",patient_list_2)
+DB1.segment_beats()
+DB2.segment_beats()
  
 
 
 
 mit100 = load_database.load_patient_record("mitdb","100")
-mit100.set_segmented_beats_r_pos()
+mit100.set_segmented_beats_r_pos(winL=100,winR=200)
 
 
 columns = len(mit100.segmented_beat_time[0]) + len(mit100.segmented_beat_1[0])
@@ -178,6 +183,7 @@ clf.score(x_test,yn2)
        # np.stack((DB1np, row), axis=0)
         #np.stack((DB1np, patient.segmented_beat_1), axis=-1)
         #np.stack((DB1np, patient.segmented_beat_2), axis=-1)
+
 
 
 
