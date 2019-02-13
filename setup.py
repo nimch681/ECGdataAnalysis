@@ -14,7 +14,7 @@ from wfdb import processing, plot
 from codes.python import heartbeat_segmentation as shs
 from sklearn.decomposition import PCA
 from sklearn import svm
-
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import pandas as pd
 
 
