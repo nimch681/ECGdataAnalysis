@@ -93,8 +93,14 @@ def r_peak_and_annotation(signal,annotations, indexes, winL=180, winR=180,size_R
         aS = a.split()
         pos = int(aS[1])
 
+       
+
+        if(len(signal) < len(indexes)):
+            break
+
         if(indexes[len(indexes)-1] < pos):
             continue
+
         if(indexes[0] > pos):
             continue
         
@@ -123,7 +129,12 @@ def r_peak_detector(signal,annotations,indexes,  winL=180, winR=180,size_RR_max=
     for a in annotations:
         aS = a.split()
         pos = int(aS[1])
+
         
+        if(len(signal) < len(indexes)):
+            
+            break
+
         if(indexes[len(indexes)-1] < pos):
             
             continue
@@ -149,6 +160,10 @@ def annotated_r_peaks(signal,annotations,indexes,  winL=180, winR=180,size_RR_ma
     for a in annotations:
         aS = a.split()
         pos = int(aS[1])
+           
+        if(len(signal) < len(indexes)):
+            break
+
         if(indexes[len(indexes)-1] < pos):
             continue
         if(indexes[0] > pos): 

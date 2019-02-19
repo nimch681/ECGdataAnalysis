@@ -59,7 +59,7 @@ rows = 0
 for patient in DB1.patient_records:
         rows += len(patient.segmented_beat_time)
 
-mit100.filtered_MLII[indexes]
+
 
 DBn1 = np.zeros((rows,columns),dtype=object)
 yn1 = np.zeros((rows,1), dtype=object)
