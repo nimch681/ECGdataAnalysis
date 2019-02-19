@@ -92,6 +92,7 @@ class Patient_record:
             segmented_beat_1,times,beat_index, segmented_beat_class, segmented_class_ID, segmented_R_pos  = hs.segment_beat_from_annotation(signal_MLII, self.time, self.annotations, winL, winR, rr_max)
             self.segmented_beat_1 = segmented_beat_1
             print("Finished segmenting MLII.")
+            
         self.segmented_beat_time = times
         self.segmented_beat_index = beat_index
         self.segmented_beat_class = segmented_beat_class

@@ -78,6 +78,107 @@ def segment_beat_from_annotation(signal,time,annotations, winL=180, winR=180,siz
 
     return beats,times,beat_index, beat_class, class_ID, R_poses
 
+###have to pass in the whole index of the signal, to be start and end
+def r_peak_and_annotation(signal,annotations, indexes, winL=180, winR=180,size_RR_max=35):
+    class_ID = []
+    
+    originalPoses = []
+   
+    R_poses = []
+    beat_class = []
+    class_AAMI = -1
+    
+    for a in annotations:
+    
+        aS = a.split()
+        pos = int(aS[1])
+
+        if(indexes[len(indexes)-1] < pos):
+            continue
+        if(indexes[0] > pos):
+            continue
+        
+        originalPos = int(aS[1])
+        classAnttd = str(aS[2])
+
+        if pos > size_RR_max and pos < (len(signal) - size_RR_max):
+            beat_poses,pos=segment(signal,pos,winL,winR, size_RR_max)
+            beat = list(signal[beat_poses[0] : beat_poses[len(beat_poses)-1]+1])
+            #time_beat = list(time[beat_poses[0] : beat_poses[len(beat_poses)-1]+1])
+
+            if(pos > winL and pos < (len(signal) - winR)):
+                pos = pos - indexes[0]
+                R_poses.append(pos)
+                class_AAMI = check_class_AAMI(classAnttd, class_AAMI)
+                class_ID.append(class_AAMI)
+                beat_class.append(classAnttd)
+                originalPoses.append(originalPos)
+
+    return beat_class, class_ID, R_poses, originalPoses
+
+def r_peak_detector(signal,annotations,indexes,  winL=180, winR=180,size_RR_max=35):
+    
+    R_poses = []
+    class_AAMI = -1
+    for a in annotations:
+        aS = a.split()
+        pos = int(aS[1])
+        
+        if(indexes[len(indexes)-1] < pos):
+            
+            continue
+        if(indexes[0] > pos): 
+           
+            continue
+
+        originalPos = int(aS[1])
+        classAnttd = str(aS[2])
+        if pos > size_RR_max and pos < (len(signal) - size_RR_max):
+            beat_poses,pos=segment(signal,pos,winL,winR, size_RR_max)
+            if(pos > winL and pos < (len(signal) - winR)):
+                pos = pos - indexes[0]
+                R_poses.append(pos)
+                
+    return R_poses
+
+
+def annotated_r_peaks(signal,annotations,indexes,  winL=180, winR=180,size_RR_max=35):
+    
+    R_poses = []
+    class_AAMI = -1
+    for a in annotations:
+        aS = a.split()
+        pos = int(aS[1])
+        if(indexes[len(indexes)-1] < pos):
+            continue
+        if(indexes[0] > pos): 
+            continue
+
+        originalPos = int(aS[1])
+        classAnttd = str(aS[2])
+        if pos > size_RR_max and pos < (len(signal) - size_RR_max):
+            if(pos > winL and pos < (len(signal) - winR)):
+                pos = pos - indexes[0]
+                R_poses.append([pos,originalPos])
+                
+    return R_poses   
+
+def r_peak(signal,r_peak, winL=180, winR=180,size_RR_max=35):
+    
+    R_poses = []
+    class_AAMI = -1
+    for r in r_peak:
+        pos = r
+        if(pos > len(signal)):
+            break  
+        
+        if pos > size_RR_max and pos < (len(signal) - size_RR_max):
+            beat_poses,pos=segment(signal,pos,winL,winR, size_RR_max)
+            if(pos > winL and pos < (len(signal) - winR)):
+               
+                R_poses.append(pos)
+                
+    return R_poses
 
 
 def segment_beat(signal,r_poses, winL=180, winR=180,size_RR_max=35):

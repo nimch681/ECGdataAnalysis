@@ -35,8 +35,8 @@ wfdb.plot_items(signal=mit100.segmented_beat_1[0])
 
 load_database.display_signal(mit100.segmented_beat_1[2])
 
- 
-
+mit1_10000 = mit100.filtered_MLII[0:1000]
+wfdb.plot_items(signal=mit1_10000)
 
 
 patient_list_1 = ["101","106","108","109","112","114","115","116","118","119","122","124","201","203","205","207","208","209","215","220","223","230"]
@@ -45,7 +45,6 @@ DB1 = load_database.create_ecg_database("mitdb",patient_list_1)
 DB2 = load_database.create_ecg_database("mitdb",patient_list_2)
 DB1.segment_beats()
 DB2.segment_beats()
- 
 
 
 
@@ -53,11 +52,14 @@ mit100 = load_database.load_patient_record("mitdb","100")
 mit100.set_segmented_beats_r_pos(winL=100,winR=200)
 
 
+
+
 columns = len(mit100.segmented_beat_time[0]) + len(mit100.segmented_beat_1[0])
 rows = 0
 for patient in DB1.patient_records:
         rows += len(patient.segmented_beat_time)
 
+mit100.filtered_MLII[indexes]
 
 DBn1 = np.zeros((rows,columns),dtype=object)
 yn1 = np.zeros((rows,1), dtype=object)
@@ -238,8 +240,6 @@ Resampled_MLII = resample(mit100.MLII, num_samples)
 index, value = max(enumerate(MLII), key=operator.itemgetter(1))
 
 """
-
-
 
 
 
