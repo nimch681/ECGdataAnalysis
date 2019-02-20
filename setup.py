@@ -46,11 +46,17 @@ DB2 = load_database.create_ecg_database("mitdb",patient_list_2)
 DB1.segment_beats()
 DB2.segment_beats()
 
+mit105 = load_database.load_patient_record("mitdb","105")
+mit105.set_segmented_beats_r_pos(winL=100,winR=200)
+r_pos = np.asarray(mit105.segmented_R_pos)
+wfdb.plot_items(signal=mit105.filtered_MLII,ann_samp=[r_pos])
 
 
 mit100 = load_database.load_patient_record("mitdb","100")
 mit100.set_segmented_beats_r_pos(winL=100,winR=200)
+r_pos = np.asarray(mit100.original_R_pos)
 
+wfdb.plot_items(signal=mit100.filtered_MLII,ann_samp=[r_pos])
 
 
 
