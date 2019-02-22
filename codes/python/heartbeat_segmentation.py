@@ -17,7 +17,7 @@ def segment(signal,pos,winL,winR,size_RR_max):
     lst = list(signal[pos - size_RR_max : pos + size_RR_max])
     
     
-    if(pos <= 0):
+    if(singal[pos] < 0):
         beat_pos = [abs(x) for x in lst]
         beat_pos = enumerate(beat_pos)
         index, value  = max(beat_pos, key=operator.itemgetter(1))
@@ -234,3 +234,59 @@ def xqrs_segment_beat(signal, fs, winL=180, winR=180, size_RR_max = 5):
             if(pos > winL and pos < (len(signal) - winR)):
                 beat.append(beat_poses)
     return beat
+
+# only works with filtered leads 
+def find_Q_point(signal,time, R_peaks, time_limit = 0.01,limit=50):
+    num_peak = len(R_peaks)
+    Q_points = []   
+    for i in range(num_peak):
+        r_peak = R_peaks[i]
+        point = r_peak
+        if point-1 >= len(signal):
+            
+            break
+        
+        if(signal[point] >= 0 ):
+            while point >= R_peaks[i] - limit and signal[point] >= signal[point - 1] or abs(time[r_peak]-time[point]) <= time_limit:             
+                point -= 1
+                if point >= len(signal):
+                    break
+        else:
+            
+            while point >= R_peaks[i] - limit and abs(signal[point]) >= abs(signal[point - 1]) or abs(time[r_peak]-time[point]) <= time_limit:             
+                point -= 1
+                if point <= len(signal):
+                    break
+        
+        Q_points.append(point)
+                        
+    return np.asarray(Q_points)
+
+# only works with filtered leads 
+def find_S_point(signal,time, R_peaks, time_limit = 0.01, limit=50):
+    num_peak = len(R_peaks)
+    S_points = []   
+    for i in range(num_peak):
+        
+        r_peak = R_peaks[i]
+        point = r_peak
+        if point+1 >= len(signal):
+           
+            break
+        
+        if(signal[point] >= 0 ):
+            while point <= R_peaks[i] + limit and signal[point] >= signal[point + 1] or abs(time[point]-time[r_peak]) <= time_limit:             
+                point += 1
+                if point >= len(signal):
+                   
+                    break
+        else:
+            
+            while  point <= R_peaks[i] + limit and abs(signal[point]) >= abs(signal[point + 1]) or abs(time[point]-time[r_peak]) <= time_limit:             
+                point += 1
+                if point >= len(signal):
+                    break
+        
+        S_points.append(point)
+                        
+    return np.asarray(S_points)

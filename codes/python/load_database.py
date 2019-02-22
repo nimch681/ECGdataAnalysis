@@ -46,6 +46,8 @@ class Patient_record:
         self.segmented_beat_index = []
         self.segmented_beat_1 = []
         self.segmented_beat_2 = []
+        self.Q_points = []
+        self.S_points = []
 
     def attribute(self):
         print("database, filename, fields, time, MLII, filtered_MLII, V1, filtered_V1, annotations, annotated_R_poses, annotated_beat_class, annotated_p_waves_pos, annotated_t_waves_pos, segmented_class_ID, segmented_beat_class,segmented_R_pos, segmented_valid_R, segmented_original_R, segmented_beat_1, segmented_beat_2 ")
@@ -55,7 +57,7 @@ class Patient_record:
 
     def get_beat_2(self):
         return self.segmented_beat_2
-    
+      
     def get_r_pos(self):
         return self.segmented_R_pos
     
@@ -102,6 +104,11 @@ class Patient_record:
         self.original_R_pos = orignal_r_pos
 
         print("Segmenting record "+ self.filename + " completes.")
+    
+   # def set_segmented_s_and_q(self, R_peaks, time_limit = 0.01, limit=50):
+        #if(self.filtered_MLII == []):
+            #self
+
 
             
         
