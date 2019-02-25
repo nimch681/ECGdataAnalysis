@@ -108,6 +108,29 @@ class Patient_record:
    # def set_segmented_s_and_q(self, R_peaks, time_limit = 0.01, limit=50):
         #if(self.filtered_MLII == []):
             #self
+        
+    def set_Q_S_points_MLII(self, Q_point=True, S_point=True,time_limit = 0.01, limit=50):
+        print("Processing file: "+ self.filename)
+        if(self.filtered_MLII == []):
+            filter_FIR = denoise.ECG_FIR_filter()
+            signal_MLII = denoise.denoising_signal_FIR(self.MLII,filter_FIR)
+            self.filtered_MLII = signal_MLII
+            print("Filtered MLII records from : "+ self.filename)
+        
+        if(self.segmented_R_pos == []):
+            print("Finding R pos")
+            self.segmented_beat_class, self.segmented_class, self.segmented_R_pos, self.segmented_R_pos = hs.r_peak_and_annotation(self.filtered_MLII, self.annotations,list(range(0,len(self.filtered_MLII))))
+        
+        if(Q_point == True):
+            print("Finding Q pos")
+            self.Q_points = hs.find_Q_point(self.filtered_MLII, self.time,self.segmented_R_pos,time_limit,limit)
+        
+        if(S_point == True):
+            print("Finding S pos")
+            self.S_points = hs.find_S_point(self.filtered_MLII, self.time,self.segmented_R_pos,time_limit,limit)
+        print("Done proecessing: "+ self.filename)
+
+
 
 
             
@@ -144,6 +167,16 @@ class ecg_database:
             record.set_segmented_beats_r_pos(filtered,is_MLII,is_V1,winL,winR,rr_max)
  
         print("Segmenting beats complete")
+
+    
+    def set_Q_and_S_points(self, Q_point=True, S_point=True,time_limit = 0.01, limit=50):
+
+        
+        for record in self.patient_records:
+            record.set_Q_S_points_MLII(Q_point,S_point,time_limit,limit)
+ 
+        print("Done Setting Q and S points")
+
 
     
 

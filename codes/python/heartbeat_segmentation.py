@@ -17,7 +17,7 @@ def segment(signal,pos,winL,winR,size_RR_max):
     lst = list(signal[pos - size_RR_max : pos + size_RR_max])
     
     
-    if(singal[pos] < 0):
+    if(signal[pos] < 0):
         beat_pos = [abs(x) for x in lst]
         beat_pos = enumerate(beat_pos)
         index, value  = max(beat_pos, key=operator.itemgetter(1))
@@ -38,7 +38,7 @@ def is_class_MIT(classAnttd):
         return True
     else:
         return False
-        return False
+        
 
 def check_class_AAMI(classAnttd, class_AAMI):
     AAMI_classes = []
@@ -214,13 +214,14 @@ def r_peak(signal,r_peak, winL=180, winR=180,size_RR_max=5):
 
 
 def segment_beat(signal,r_poses, winL=180, winR=180,size_RR_max=5):
-    beat = []
+    beats = []
     for pos in r_poses:
         if pos > size_RR_max and pos < (len(signal) - size_RR_max ):
             beat_poses=segment(signal,pos,winL,winR, size_RR_max)
+            beat = list(signal[beat_poses[0] : beat_poses[len(beat_poses)-1]+1])
             if(pos > winL and pos < (len(signal) - winR)):
-                beat.append(beat_poses)
-    return beat
+                beats.append(beat)
+    return np.asrray(beats)
             
 
 

@@ -45,6 +45,8 @@ DB1 = load_database.create_ecg_database("mitdb",patient_list_1)
 DB2 = load_database.create_ecg_database("mitdb",patient_list_2)
 DB1.segment_beats()
 DB2.segment_beats()
+DB1.set_Q_and_S_points()
+DB2.set_Q_and_S_points()
 
 mit105 = load_database.load_patient_record("mitdb","105")
 mit105.set_segmented_beats_r_pos(winL=100,winR=200)
@@ -59,15 +61,18 @@ wfdb.plot_items(signal=mit100.filtered_MLII,ann_samp=[r_pos])
 
 
 
+mit100 = load_database.load_patient_record("mitdb","100")
+mit100.set_segmented_beats_r_pos(winL=100,winR=200)
+mit100.set_Q_S_points_MLII()
 columns = len(mit100.segmented_beat_time[0]) + len(mit100.segmented_beat_1[0])
 rows = 0
 for patient in DB1.patient_records:
         rows += len(patient.segmented_beat_time)
 
-
-
 DBn1 = np.zeros((rows,columns),dtype=object)
 yn1 = np.zeros((rows,1), dtype=object)
+q_points = np.zeros((rows,1), dtype=int)
+s_points = np.zeros((rows,1), dtype=int)
 
 row_count = 0
 
@@ -87,7 +92,7 @@ for patient in DB1.patient_records:
                 
 
                 yn1[row_count] = patient.segmented_class_ID[i]
-                DBn1[row_count,0:columns] = row_x
+                DBn1[row_count,0:columns] = row_x  
                 #print(DBn1[row_count])
                 row_count += 1
                 
@@ -96,7 +101,6 @@ for patient in DB1.patient_records:
                         #DBn1 = np.array(row, dtype=object)
                 #else:
                         #DBn1 = np.vstack((DBn1, row))
-
 
 """
 wfdb.plot_items(signal=mit207.MLII)
