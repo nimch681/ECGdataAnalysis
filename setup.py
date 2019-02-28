@@ -16,8 +16,9 @@ from sklearn.decomposition import PCA
 from sklearn import svm
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import pandas as pd
-
-
+import neurokit as nk
+from scipy.signal import savgol_filter
+from biosppy.signals import ecg
 #mitdb = load_mitdb.load_mitdb()
 
 
@@ -63,6 +64,14 @@ wfdb.plot_items(signal=mit100.filtered_MLII,ann_samp=[r_pos])
 
 mit100 = load_database.load_patient_record("mitdb","100")
 mit100.set_segmented_beats_r_pos(winL=100,winR=200)
+out = ecg.ecg(signal=mit100.filtered_MLII[0:20000], sampling_rate=1000., show=True)
+
+wfdb.plot_items(signal=mit100.filtered_MLII)
+wfdb.plot_items(signal=mit100.MLII[0:400])
+wfdb.plot_items(signal=mit100.filtered_MLII[0:300])
+filtered_np100 = savgol_filter(mit100.filtered_MLII[0:1000],51,7)
+wfdb.plot_items(signal=filtered_np100)
+
 mit100.set_Q_S_points_MLII()
 columns = len(mit100.segmented_beat_time[0]) + len(mit100.segmented_beat_1[0])
 rows = 0
