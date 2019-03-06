@@ -41,13 +41,16 @@ class Patient_record:
         self.segmented_class_ID = []
         self.segmented_beat_class = []
         self.segmented_R_pos = []
+        self.R_pos_properites = None
         self.original_R_pos = []
         self.segmented_beat_time = []
         self.segmented_beat_index = []
         self.segmented_beat_1 = []
         self.segmented_beat_2 = []
         self.Q_points = []
+        self.Q_points_properites = None
         self.S_points = []
+        self.S_points_properites = None
 
     def attribute(self):
         print("database, filename, fields, time, MLII, filtered_MLII, V1, filtered_V1, annotations, annotated_R_poses, annotated_beat_class, annotated_p_waves_pos, annotated_t_waves_pos, segmented_class_ID, segmented_beat_class,segmented_R_pos, segmented_valid_R, segmented_original_R, segmented_beat_1, segmented_beat_2 ")

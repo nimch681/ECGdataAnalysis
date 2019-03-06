@@ -1,8 +1,3 @@
-
-class rr_intervals:
-    def __init__(self):
-        self.pre_rr_interval = 0
-        self.post_rr_interval = 0 
         
 
 def pre_pos_rr_interval(record):
