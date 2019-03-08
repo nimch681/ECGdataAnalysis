@@ -19,6 +19,7 @@ import pandas as pd
 import neurokit as nk
 from scipy.signal import savgol_filter
 from biosppy.signals import ecg
+import time
 #mitdb = load_mitdb.load_mitdb()
 
 
@@ -64,7 +65,16 @@ wfdb.plot_items(signal=mit100.filtered_MLII,ann_samp=[r_pos])
 
 mit100 = load_database.load_patient_record("mitdb","100")
 mit100.set_segmented_beats_r_pos(winL=100,winR=200)
+
+start_time = time.clock()
+R_peak_prop = r_peak_properties_extractor(mit100)
+end_time = time.clock()
+duration = end_time-start_time
+
 out = ecg.ecg(signal=mit100.filtered_MLII[0:20000], sampling_rate=1000., show=True)
+x ,y  = np.unique(R_peak_prop["durations"], return_counts=True) # counting occurrence of each loan
+plt.scatter(x,y)
+plt.show()
 
 wfdb.plot_items(signal=mit100.filtered_MLII)
 wfdb.plot_items(signal=mit100.MLII[0:400])

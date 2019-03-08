@@ -42,6 +42,7 @@ class Patient_record:
         self.segmented_beat_class = []
         self.segmented_R_pos = []
         self.R_pos_properites = None
+        self.rr_interval = None 
         self.original_R_pos = []
         self.segmented_beat_time = []
         self.segmented_beat_index = []
