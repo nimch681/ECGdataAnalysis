@@ -25,31 +25,31 @@ def origin_to_new_point(por,point_from_origin):
     point = point_from_origin - por
     return point
 
-def peak_duration(time,right_edge, left_edge,point_from_origin):
+def peak_duration(time,right_edge, left_edge,point_from_origin=0):
     right_edge = point_transform_to_origin(point_from_origin,right_edge)
     left_edge = point_transform_to_origin(point_from_origin,left_edge)
     
     return float(time[right_edge]-time[left_edge])
 
-def sub_signal_interval(time, start_point, end_point,point_from_origin):
+def sub_signal_interval(time, start_point, end_point,point_from_origin=0):
     start_point = point_transform_to_origin(point_from_origin,start_point)
     end_point = point_transform_to_origin(point_from_origin,end_point)
     
     return float(time[end_point]-time[start_point])
 
-def peak_height(signal, peak, prominence,point_from_origin):
+def peak_height(signal, peak, prominence,point_from_origin=0):
     peak = point_transform_to_origin(point_from_origin,peak)
     height = signal[peak]-(signal[peak] - prominence)
     return height
 
-def area_under_curve(signal,time,samples,point_from_origin):
+def area_under_curve(signal,time,samples,point_from_origin=0):
     samples = [point_transform_to_origin(i,point_from_origin) for i in samples]
     time = np.asarray(time)
     amplitude = np.asarray(signal)
     area = metrics.auc(time[samples],amplitude[samples])
     return area
 
-def amplitude(signal,samples,point_from_origin):
+def amplitude(signal,samples,point_from_origin=0):
     samples = [point_transform_to_origin(i,point_from_origin) for i in samples]
     signal = np.asarray(signal)
     amplitudes = signal[samples]
