@@ -121,7 +121,7 @@ def rr_local_average(pre_rr_interval,len_of_rr, pos, average_of_rr):
     return rr_ave
 
 
-def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True, left_limit=50,right_limit=50, distance=20, width=[0,100],plateau_size=[0,100]):
+def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True,to_savol=True, Order=4,window_len=17, left_limit=50,right_limit=50, distance=20, width=[0,100],plateau_size=[0,100]):
     
     peaks = []
     heights = []
@@ -156,9 +156,13 @@ def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True, left
             sig = MLII[start_point:end_point]
             height = min(sig)   
             peak,properties = peak_properties_extractor(sig,height=height, distance=distance, width = width, plateau_size=plateau_size)
-    
-    
-        savgol_signal = savgol_filter(sig,41,9)
+        
+        if(to_savol == True):
+            savgol_signal = savgol_filter(sig,window_len,Order)
+        else:
+            savgol_signal = sig
+
+        
         height = min(savgol_signal)   
         peak_savol,properties_savol = peak_properties_extractor(savgol_signal,height=height, distance=distance, width=width, plateau_size=plateau_size)
         old_sig = savgol_signal

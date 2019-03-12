@@ -2,6 +2,7 @@
 from scipy.signal import medfilt, lfilter, firwin, convolve
 import numpy as np
 import math
+from scipy.signal import savgol_filter
 
 #from pymatbridge import Matlab as matlab
 
@@ -16,7 +17,7 @@ class ECG_FIR_filter:
 
     def attribute(self):
         print("medfilt_width_1, medfilt_width_2, is_low_pass, cutoff_fre, sampling_fre, fir_order")
-        
+      
 
 def denoising_signal_FIR(signal, FIR_filter):
     baseline = medfilt(signal, FIR_filter.medfilt_width_1) #has to be an odd number (360hz*0.2second)
@@ -37,6 +38,21 @@ def denoising_signal_FIR(signal, FIR_filter):
     return denoised_signal
   
 
+class savgol:
+    def __init__(self,window_len=17,poly_order=4):
+        self.window_len = window_len
+        self.poly_order = poly_order
+      
+
+    def attribute(self):
+        print("window_len, poly_order")
+
+def savol_filter(signal, savgol):
+   
+    
+    denoised_signal = savgol_filter(signal,savgol.window_len,savgol.poly_order)
+    
+    return denoised_signal
 
 if __name__ == "__main__":
     filter = ECG_FIR_filter()
