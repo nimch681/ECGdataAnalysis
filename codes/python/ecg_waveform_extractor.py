@@ -121,7 +121,7 @@ def rr_local_average(pre_rr_interval,len_of_rr, pos, average_of_rr):
     return rr_ave
 
 
-def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True,to_savol=True, Order=4,window_len=17, left_limit=50,right_limit=50, distance=20, width=[0,100],plateau_size=[0,100]):
+def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=20, width=[0,100],plateau_size=[0,100]):
     
     peaks = []
     heights = []
