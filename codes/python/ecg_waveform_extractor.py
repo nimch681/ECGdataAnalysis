@@ -197,8 +197,8 @@ def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True,to_sa
             area = round(area_under_curve(patient.filtered_MLII,time,samples,start_point),3)
             areas.append(area)
         amps.append(amp)
-        offset.append(right_edge+5)
-        onset.append(left_edge+5)
+        offset.append(point_transform_to_origin(right_edge+5,start_point))
+        onset.append(point_transform_to_origin(left_edge+5,start_point))
     properties = {
         "peaks" : peaks,
         "durations" : durations,
