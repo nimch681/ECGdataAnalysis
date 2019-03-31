@@ -121,8 +121,7 @@ def rr_local_average(pre_rr_interval,len_of_rr, pos, average_of_rr):
     return rr_ave
 
 
-def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=20, width=[0,100],plateau_size=[0,100]):
-    
+def r_peak_properties_extractor(patient,sample_from_R=[5,5], to_area=True,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
     peaks = []
     heights = []
     durations = []
@@ -131,6 +130,9 @@ def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True,to_sa
     offset = []
     amps = []
     promi = []
+    sigs = []
+    start_points = []
+    end_points = []
     time = patient.time
     print("Patient file: ",patient.filename, "begins")
     
@@ -157,29 +159,63 @@ def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True,to_sa
             height = min(sig)   
             peak,properties = peak_properties_extractor(sig,height=height, distance=distance, width = width, plateau_size=plateau_size)
         
+        sigs.append(sig)
         if(to_savol == True):
             savgol_signal = savgol_filter(sig,window_len,Order)
         else:
             savgol_signal = sig
-
+        
         
         height = min(savgol_signal)   
         peak_savol,properties_savol = peak_properties_extractor(savgol_signal,height=height, distance=distance, width=width, plateau_size=plateau_size)
         old_sig = savgol_signal
+        old_peaks = peak_savol
+        new_peaks = point_transform_to_origin(start_point,peak_savol)
+        
+        peak_savol = []
+
+        for p in range(0,len(old_peaks)):
+            if(new_peaks[p] >= r-5 and new_peaks[p] <= r+5):
+                peak_savol.append(old_peaks[p])
+                
         savgol_signal = savgol_signal[peak_savol]
-       
+        
+        if(len(savgol_signal) == 0):
+            start_points.append(start_point)
+            end_points.append(end_point)
+            peaks.append(r)
+            durations.append(0)
+            promi.append(0)
+            amp = amplitude(patient.filtered_MLII,list(range(r-sample_from_R[0],r+sample_from_R[1])),0)
+            heights.append(0)
+            if(to_area==True):
+                areas.append(0)
+            amps.append(amp)
+            offset.append(r+5)
+            onset.append(r-5)
+            
+            
+            
+            continue
+            
+        
         value = max(savgol_signal)
+            
         index = np.where(savgol_signal==value)
         
         index = int(index[0])
     
         peak_savol = peak_savol[index]
+        r_peak = peak_savol
         peak_savol = point_transform_to_origin(start_point,peak_savol)
         
         left_ips = np.asarray(properties_savol["left_ips"])
         right_ips = np.asarray(properties_savol["right_ips"])
         left_ips = [int(i) for i in left_ips]
         right_ips = [int(i) for i in right_ips]
+
+        index = np.where(old_peaks==r_peak)
+        index = int(index[0])
     
         left_edge = left_ips[index]
         right_edge = right_ips[index]
@@ -190,7 +226,7 @@ def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True,to_sa
         peaks.append(peak_savol)
         durations.append(duration)
         promi.append(prominence)
-        amp = amplitude(patient.filtered_MLII,list(range(sample_from_R[0],sample_from_R[1])),start_point)
+        amp = amplitude(patient.filtered_MLII,list(range(r-sample_from_R[0],r+sample_from_R[1])),0)
         heights.append(height)
         if(to_area==True):
             samples = list(range(left_edge,right_edge+1))
@@ -198,7 +234,8 @@ def r_peak_properties_extractor(patient,sample_from_R=[0,11], to_area=True,to_sa
             areas.append(area)
         amps.append(amp)
         offset.append(point_transform_to_origin(right_edge+5,start_point))
-        onset.append(point_transform_to_origin(left_edge+5,start_point))
+        onset.append(point_transform_to_origin(left_edge-5,start_point))
+        
     properties = {
         "peaks" : peaks,
         "durations" : durations,
