@@ -15,6 +15,8 @@ import csv
 import math
 import wfdb
 from wfdb import processing
+from codes.python import ecg_waveform_extractor as waveform
+
 
 # Show a 2D plot with the data in beat
 def display_signal(beat):
@@ -113,7 +115,7 @@ class Patient_record:
         #if(self.filtered_MLII == []):
             #self
         
-    def set_Q_S_points_MLII(self, Q_point=True, S_point=True,time_limit = 0.01, limit=50):
+    def set_Q_S_points_MLII(time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
         print("Processing file: "+ self.filename)
         if(self.filtered_MLII == []):
             filter_FIR = denoise.ECG_FIR_filter()
@@ -125,13 +127,7 @@ class Patient_record:
             print("Finding R pos")
             self.segmented_beat_class, self.segmented_class, self.segmented_R_pos, self.segmented_R_pos = hs.r_peak_and_annotation(self.filtered_MLII, self.annotations,list(range(0,len(self.filtered_MLII))))
         
-        if(Q_point == True):
-            print("Finding Q pos")
-            self.Q_points = hs.find_Q_point(self.filtered_MLII, self.time,self.segmented_R_pos,time_limit,limit)
-        
-        if(S_point == True):
-            print("Finding S pos")
-            self.S_points = hs.find_S_point(self.filtered_MLII, self.time,self.segmented_R_pos,time_limit,limit)
+         q_s_peak_properties_extractor(self,time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100])
         print("Done proecessing: "+ self.filename)
 
 
@@ -173,11 +169,11 @@ class ecg_database:
         print("Segmenting beats complete")
 
     
-    def set_Q_and_S_points(self, Q_point=True, S_point=True,time_limit = 0.01, limit=50):
+    def set_Q_and_S_points(self,time_limit = 0.01, limit=50):
 
         
         for record in self.patient_records:
-            record.set_Q_S_points_MLII(Q_point,S_point,time_limit,limit)
+            record.set_Q_S_points_MLII(time_limit,limit)
  
         print("Done Setting Q and S points")
 
