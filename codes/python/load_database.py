@@ -114,7 +114,7 @@ class Patient_record:
    # def set_segmented_s_and_q(self, R_peaks, time_limit = 0.01, limit=50):
         #if(self.filtered_MLII == []):
             #self
-        
+    """    
     def set_Q_S_points_MLII(time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
         print("Processing file: "+ self.filename)
         if(self.filtered_MLII == []):
@@ -129,6 +129,7 @@ class Patient_record:
         
          q_s_peak_properties_extractor(self,time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100])
         print("Done proecessing: "+ self.filename)
+    """
 
 
 
