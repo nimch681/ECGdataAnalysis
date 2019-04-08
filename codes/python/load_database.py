@@ -36,24 +36,56 @@ class Patient_record:
         self.V1 = []
         self.filtered_V1 = []
         self.annotations = []
+
         self.annotated_R_poses = []
         self.annotated_beat_class = []
         self.annotated_p_waves_pos = []
         self.annotated_t_waves_pos = []
         self.segmented_class_ID = []
         self.segmented_beat_class = []
-        self.segmented_R_pos = []
-        self.R_pos_properites = None
-        self.rr_interval = None 
-        self.original_R_pos = []
-        self.segmented_beat_time = []
-        self.segmented_beat_index = []
-        self.segmented_beat_1 = []
-        self.segmented_beat_2 = []
-        self.Q_points = []
-        self.Q_points_properites = None
-        self.S_points = []
-        self.S_points_properites = None
+        
+        self.segmented_R_pos = [] #1
+        self.R_pos_properites = None #15
+        self.original_R_pos = []#1
+        self.segmented_beat_time = []#300
+        self.segmented_beat_index = []#300
+        self.segmented_beat_1 = []#300
+        self.segmented_beat_2 = []#300
+
+        self.Q_points = []#1
+        self.Q_points_properites = None#15
+        self.S_points = []#1
+        self.S_points_properites = None#15
+        self.P_points = []#1
+        self.P_points_properites = None#30
+        self.P_neg_points = []#1
+        self.T_points = []#1
+        self.T_points_properites = None#30
+        self.T_neg_points = []#1
+
+        self.QRS_interval = None#1
+        self.rr_interval = None#4
+        self.P_Q_interval = None#4
+        self.neg_P_Q_interval = []#1
+        self.P_R_interval = None#4
+        self.neg_P_R_interval = []#1
+
+        self.S_T_interval = None#4
+        self.neg_S_T_interval = []#1
+        self.R_T_interval = None#4
+        self.neg_R_T_interval = []#1
+
+        self.P_T_interval = None#4
+        self.neg_P_T_interval = []#1
+        self.P_neg_T_interval = []#1
+        self.neg_P_neg_T_interval = []#1
+
+        #self.DTW = []
+
+
+        #####137 or 138 if include DTW  
+        
+         
 
     def attribute(self):
         print("database, filename, fields, time, MLII, filtered_MLII, V1, filtered_V1, annotations, annotated_R_poses, annotated_beat_class, annotated_p_waves_pos, annotated_t_waves_pos, segmented_class_ID, segmented_beat_class,segmented_R_pos, segmented_valid_R, segmented_original_R, segmented_beat_1, segmented_beat_2 ")
@@ -144,7 +176,29 @@ class Patient_record:
         
         self.R_pos_properites =waveform.r_peak_properties_extractor(self,sample_from_R, to_area,to_savol, Order,window_len, left_limit,right_limit, distance, width,plateau_size)
         print("Done proecessing: "+ self.filename)
-    
+
+    def set_P_T_points_MLII(self,time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=False, Order=9,window_len=31, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
+        print("Processing file: "+ self.filename)
+        if(self.filtered_MLII == []):
+            filter_FIR = denoise.ECG_FIR_filter()
+            signal_MLII = denoise.denoising_signal_FIR(self.MLII,filter_FIR)
+            self.filtered_MLII = signal_MLII
+            print("Filtered MLII records from : "+ self.filename)
+        
+        if(self.segmented_R_pos == []):
+            print("Finding R pos")
+            self.segmented_beat_class, self.segmented_class, self.segmented_R_pos, self.segmented_R_pos = hs.r_peak_and_annotation(self.filtered_MLII, self.annotations,list(range(0,len(self.filtered_MLII))))
+        
+
+        p_positives, p_negatives, p_properties, t_positives, t_negatives, t_properties=waveform.p_and_t_peak_properties_extractor(self,time_limit_from_r,sample_from_point, to_area,to_savol, Order,window_len, left_limit,right_limit, distance, width,plateau_size)
+        
+        self.P_points = p_positives
+        self.P_points_properites = p_properties
+        self.P_neg_points = p_negatives
+        self.T_points = t_positives
+        self.T_points_properites = t_properties
+        self.T_neg_points = t_negatives
+        print("Done proecessing: "+ self.filename)
 
 
 
@@ -184,14 +238,29 @@ class ecg_database:
  
         print("Segmenting beats complete")
 
-    
-    def set_Q_and_S_points(self,time_limit = 0.01, limit=50):
+    def set_R_properties(self,sample_from_R=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
 
         
         for record in self.patient_records:
-            record.set_Q_S_points_MLII(time_limit,limit)
+            record.set_r_properties_MLII(sample_from_R, to_area,to_savol, Order,window_len, left_limit,right_limit, distance, width,plateau_size)
+ 
+        print("Done Setting R properties")
+
+    def set_Q_and_S_points(self,time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
+
+        
+        for record in self.patient_records:
+            record.set_Q_S_points_MLII(time_limit_from_r,sample_from_point, to_area,to_savol, Order,window_len, left_limit,right_limit, distance, width,plateau_size)
  
         print("Done Setting Q and S points")
+
+    def set_P_T_points(self,time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=False, Order=9,window_len=31, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
+
+        
+        for record in self.patient_records:
+            record.set_P_T_points_MLII(time_limit_from_r,sample_from_point, to_area,to_savol, Order,window_len, left_limit,right_limit, distance, width,plateau_size)
+ 
+        print("Done Setting P and T properties")
 
 
     
