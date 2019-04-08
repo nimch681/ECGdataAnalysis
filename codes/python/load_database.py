@@ -114,8 +114,8 @@ class Patient_record:
    # def set_segmented_s_and_q(self, R_peaks, time_limit = 0.01, limit=50):
         #if(self.filtered_MLII == []):
             #self
-    """    
-    def set_Q_S_points_MLII(time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
+        
+    def set_Q_S_points_MLII(self,time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
         print("Processing file: "+ self.filename)
         if(self.filtered_MLII == []):
             filter_FIR = denoise.ECG_FIR_filter()
@@ -127,9 +127,24 @@ class Patient_record:
             print("Finding R pos")
             self.segmented_beat_class, self.segmented_class, self.segmented_R_pos, self.segmented_R_pos = hs.r_peak_and_annotation(self.filtered_MLII, self.annotations,list(range(0,len(self.filtered_MLII))))
         
-         q_s_peak_properties_extractor(self,time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100])
+        self.Q_points, self.Q_points_properites, self.S_points, self.S_points_properites =waveform.q_s_peak_properties_extractor(self,time_limit_from_r,sample_from_point, to_area,to_savol, Order,window_len, left_limit,right_limit, distance, width,plateau_size)
         print("Done proecessing: "+ self.filename)
-    """
+
+    def set_r_properties_MLII(self,sample_from_R=[5,5], to_area=False,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
+        print("Processing file: "+ self.filename)
+        if(self.filtered_MLII == []):
+            filter_FIR = denoise.ECG_FIR_filter()
+            signal_MLII = denoise.denoising_signal_FIR(self.MLII,filter_FIR)
+            self.filtered_MLII = signal_MLII
+            print("Filtered MLII records from : "+ self.filename)
+        
+        if(self.segmented_R_pos == []):
+            print("Finding R pos")
+            self.segmented_beat_class, self.segmented_class, self.segmented_R_pos, self.segmented_R_pos = hs.r_peak_and_annotation(self.filtered_MLII, self.annotations,list(range(0,len(self.filtered_MLII))))
+        
+        self.R_pos_properites =waveform.r_peak_properties_extractor(self,sample_from_R, to_area,to_savol, Order,window_len, left_limit,right_limit, distance, width,plateau_size)
+        print("Done proecessing: "+ self.filename)
+    
 
 
 

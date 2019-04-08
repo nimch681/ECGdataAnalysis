@@ -120,6 +120,7 @@ def rr_local_average(pre_rr_interval,len_of_rr, pos, average_of_rr):
     
     return rr_ave
 
+## make change so that it will benefit the other signal as well
 
 def r_peak_properties_extractor(patient,sample_from_R=[5,5], to_area=True,to_savol=True, Order=9,window_len=41, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
     peaks = []
@@ -486,6 +487,41 @@ def q_s_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_poin
         peak,properties= peak_properties_extractor(-old_sig,height=height, distance=distance, width=width, plateau_size=plateau_size)
 
         #do q points 
+        
+        if(len(peak)==0):
+            q_point=q_points[count]
+           
+            q_peaks.append(q_point)
+            durations_q.append(0)
+            promi_q.append(0)
+            amp = amplitude(patient.filtered_MLII,list(range(q_point-sample_from_point[0],q_point+sample_from_point[1])),0)
+            heights_q.append(0)
+            if(to_area==True):
+                areas_q.append(0)
+            amps_q.append(amp)
+            offset_q.append(q_point+5)
+            onset_q.append(q_point-5)
+            #print(q_point)
+            
+            
+            
+            s_point=s_points[count]
+            
+            s_peaks.append(s_point)
+            durations_s.append(0)
+            promi_s.append(0)
+            amp = amplitude(patient.filtered_MLII,list(range(s_point-sample_from_point[0],s_point+sample_from_point[1])),0)
+            heights_s.append(0)
+            if(to_area==True):
+                areas_s.append(0)
+            amps_s.append(amp)
+            offset_s.append(s_point+5)
+            onset_s.append(s_point-5)
+            
+            count = count+1
+            continue
+            
+        #print("hello len!=0")    
         q_point = 0
         
         previous_point = peak[0]
@@ -502,7 +538,9 @@ def q_s_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_poin
                 index = index + 1
                 
         
-        if((time[origin_to_new_point(start_point,q_points[count])]-time[temp_point])<=time_limit_from_r):   
+        if((patient.time[point_transform_to_origin(start_point,temp_point)]-patient.time[q_points[count]])<=time_limit_from_r and (patient.time[r]-patient.time[point_transform_to_origin(start_point,temp_point)]) >= 0.01 and r>point_transform_to_origin(start_point,temp_point)):
+         
+            
             q_point = point_transform_to_origin(start_point,temp_point)
             left_ips = np.asarray(properties["left_ips"])
             right_ips = np.asarray(properties["right_ips"])
@@ -537,33 +575,39 @@ def q_s_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_poin
             q_peaks.append(q_point)
             #print(q_point)
         else:
+            
+                    
             q_point=q_points[count]
            
-            s_peaks.append(s_point)
-            durations_s.append(0)
-            promi_s.append(0)
-            amp = amplitude(patient.filtered_MLII,list(range(s_point-sample_from_point[0],s_point+sample_from_point[1])),0)
-            heights_s.append(0)
+            q_peaks.append(q_point)
+            durations_q.append(0)
+            promi_q.append(0)
+            amp = amplitude(patient.filtered_MLII,list(range(q_point-sample_from_point[0],q_point+sample_from_point[1])),0)
+            heights_q.append(0)
             if(to_area==True):
-                areas_s.append(0)
-            amps_s.append(amp)
-            offset_s.append(s_point+5)
-            onset_s.append(s_point-5)
+                areas_q.append(0)
+            amps_q.append(amp)
+            offset_q.append(q_point+5)
+            onset_q.append(q_point-5)
             #print(q_point)
  
         #do s points
         s_point = 0
         temp_point = 0
-        index = i
-        
+        index = 0
+        r_peak = origin_to_new_point(start_point,r)
         for i in range(0,len(peak)):
-            if peak[i] < r_peak+5:
+            
+            if peak[i] <= r_peak:
                 continue
+            
             temp_point = peak[i]
             index = i
+            
             break
+        
                         
-        if((time[temp_point]-time[origin_to_new_point(start_point,s_points[count])])<=time_limit_from_r):
+        if((patient.time[point_transform_to_origin(start_point,temp_point)]-patient.time[s_points[count]])<=time_limit_from_r and (patient.time[point_transform_to_origin(start_point,temp_point)]-patient.time[r])>= 0.01 and r<point_transform_to_origin(start_point,temp_point) ):
             
             s_point = point_transform_to_origin(start_point,temp_point)
             
@@ -573,7 +617,6 @@ def q_s_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_poin
             right_ips = [int(i) for i in right_ips]
 
         
-    
             left_edge = left_ips[index]
             right_edge = right_ips[index]
         
@@ -601,17 +644,17 @@ def q_s_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_poin
         else:
             s_point=s_points[count]
             
-            q_peaks.append(s_point)
-            durations_q.append(0)
-            promi_q.append(0)
+            s_peaks.append(s_point)
+            durations_s.append(0)
+            promi_s.append(0)
             amp = amplitude(patient.filtered_MLII,list(range(s_point-sample_from_point[0],s_point+sample_from_point[1])),0)
-            heights_q.append(0)
+            heights_s.append(0)
             if(to_area==True):
-                areas_q.append(0)
-            amps_q.append(amp)
-            offset_q.append(s_point+5)
-            onset_q.append(s_point-5)
-            
+                areas_s.append(0)
+            amps_s.append(amp)
+            offset_s.append(s_point+5)
+            onset_s.append(s_point-5)
+         
         count = count+1
             
                 
@@ -639,195 +682,9 @@ def q_s_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_poin
         "offset" : offset_s
     }
     
-        
+   
     return   q_peaks, q_properties , s_peaks, s_properties
-
-def p_and_t_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_point=[5,5], to_area=False,to_savol=False, Order=9,window_len=31, left_limit=50,right_limit=50, distance=1, width=[0,100],plateau_size=[0,100]):
-    p_peaks = []
-    p_heights = []
-    p_durations = []
-    p_areas = []
-    p_onset = []
-    p_offset = []
-    p_amps = []
-    p_promi = []
-    sigs = []
     
-    t_peaks = []
-    t_heights = []
-    t_durations = []
-    t_areas = []
-    t_onset = []
-    t_offset = []
-    t_amps = []
-    t_promi = []
-    
-    p_positives = []
-    p_negatives = []
-    t_positives = []
-    t_negatives = []
-    
-    
-    time = patient.time
-    count = 0
-    print("Patient file: ",patient.filename, "begins")
-    
-    if(patient.filtered_MLII == []):
-        print("Please filter the signal")
-        return
-    if(patient.segmented_R_pos == []):
-        print("please segment the signal to find R peak")
-        return
-    
-    if(patient.Q_points == []): 
-        print("please segment the signal to find Q peak")
-        return
-    
-    if(patient.S_points == []):
-        print("please segment the signal to find S peak")
-        return
-    
-
-    r_peaks = patient.segmented_R_pos
-    q_peaks = patient.Q_points
-    s_peaks = patient.S_points
-    #q_peaks = patient.Q_points_properites["peaks"]
-    #s_peaks = patient.S_points_properites["peaks"]
-        
-    first_r_sig = patient.filtered_MLII[q_peaks[0]-100:q_peaks[0]]
-    last_r_sig = patient.filtered_MLII[s_peaks[len(s_peaks)-1]:s_peaks[len(s_peaks)-1]+100]
-    
-    pre_r_sig = first_r_sig
-    start_pre_r = q_peaks[0]-100
-    post_r_sig = patient.filtered_MLII[s_peaks[0]:r_peaks[1]]
-    start_post_r = s_peaks[0]
-    
-    for i in range(0,len(r_peaks)):
-        ####pre_processing
-        
-        negative_pre = -pre_r_sig
-        
-        if(to_savol == True):
-            pre_r_sig = savgol_filter(pre_r_sig,window_len,Order)
-            negative_pre = savgol_filter(negative_pre,window_len,Order)
-
-        peak,properties= peak_properties_extractor(pre_r_sig, distance=distance, width=width, plateau_size=plateau_size)
-        neg_peak,neg_properties= peak_properties_extractor(negative_pre, distance=distance, width=width, plateau_size=plateau_size)
-        ########
-        #######do operation to find the p wave
-        
-        abs_peak = [point_transform_to_origin(p, start_pre_r) for p in peak]
-        abs_neg_peak = [point_transform_to_origin(p, start_pre_r) for p in neg_peak]
-    
-        left, right = sudo_k_mean(abs_peak, time)
-        neg_left, neg_right = sudo_k_mean(abs_neg_peak, time)
-        
-        p_pos = highest_peak(right, patient.filtered_MLII)
-        p_neg = highest_peak(neg_right,-patient.filtered_MLII)
-        
-        
-        ######Turn to normal peak to find the other properties
-        
-        
-        p_positives.append(p_pos)
-        index_pos = find_index(abs_peak, p_pos)
-        p_peak = peak[index_pos]
-        point, duration, prominence, height, amp, area, offset, onset=find_values_in_properties(patient,patient.filtered_MLII ,p_peak, properties, index_pos, sample_from_point, start_point,to_area)
-        p_negatives.append(p_neg)
-        index_neg = find_index(abs_neg_peak, p_neg)
-        p_neg_peak = peak[index_neg]
-        point_neg, duration_neg, prominence_neg, height_neg, amp_neg, area_neg, offset_neg, onset_neg=find_values_in_properties(patient,-patient.filtered_MLII ,p_neg_peak, neg_properties, index_neg, sample_from_point, start_point,to_area)
-
-        p_peaks.append((p_positives,p_negatives))
-        p_heights.append((height,height_neg))
-        p_durations.append((duration,duration_neg))
-        p_areas.append((area,area_neg))
-        p_onset.append((onset,onset_neg))
-        p_offset.append((offset,offset_neg))
-        p_amps.append((amp, amp_neg))
-        p_promi.append((prominence,prominence_neg))
-        
-        ##################################################
-        negative_post = -post_r_sig
-        
-        if(to_savol == True):
-            post_r_sig = savgol_filter(post_r_sig,window_len,Order)
-            negative_post = savgol_filter(negative_post,window_len,Order)
-
-        peak,properties= peak_properties_extractor(post_r_sig, distance=distance, width=width, plateau_size=plateau_size)
-        neg_peak,neg_properties= peak_properties_extractor(negative_post, distance=distance, width=width, plateau_size=plateau_size)
-        
-        ########
-        #######do operation to find the t wave
-        abs_peak = [point_transform_to_origin(p, start_post_r) for p in peak]
-        abs_neg_peak = [point_transform_to_origin(p, start_post_r) for p in neg_peak]
-        #print(len(abs_peak))
-        left, right = sudo_k_mean(abs_peak, time)
-        neg_left, neg_right = sudo_k_mean(abs_neg_peak, time)
-        
-        t_pos = highest_peak(left, patient.filtered_MLII)
-        t_neg = highest_peak(neg_left,-patient.filtered_MLII)
-        
-        t_positives.append(t_pos)
-        index_pos = find_index(abs_peak, t_pos)
-        t_peak = peak[index_pos]
-        point, duration, prominence, height, amp, area, offset, onset=find_values_in_properties(patient,patient.filtered_MLII ,t_peak, properties, index_pos, sample_from_point, start_point,to_area)
-        t_negatives.append(t_neg)
-        index_neg = find_index(abs_neg_peak, t_neg)
-        t_neg_peak = peak[index_neg]
-        point_neg, duration_neg, prominence_neg, height_neg, amp_neg, area_neg, offset_neg, onset_neg=find_values_in_properties(patient,-patient.filtered_MLII ,t_neg_peak, neg_properties, index_neg, sample_from_point, start_point,to_area)
-
-        t_peaks.append((t_positives,t_negatives))
-        t_heights.append((height,height_neg))
-        t_durations.append((duration,duration_neg))
-        t_areas.append((area,area_neg))
-        t_onset.append((onset,onset_neg))
-        t_offset.append((offset,offset_neg))
-        t_amps.append((amp, amp_neg))
-        t_promi.append((prominence,prominence_neg))
-        
-        ########next wave _________________________________________
-        
-        if(i == len(r_peaks)-1):
-            break
-           
-        pre_r_sig = patient.filtered_MLII[s_peaks[i]:q_peaks[i+1]]
-        if(i==0):
-            print(s_peaks[i], q_peaks[i+1])
-       # print("before next ",patient.filtered_MLII[s_peaks[i]:q_peaks[i-1]])
-        start_pre_r = s_peaks[i]
-        if(i == len(r_peaks)-2):
-            post_r_sig = last_r_sig
-            start_post_r = s_peaks[len(s_peaks)-1]
-            
-        else:
-            post_r_sig = patient.filtered_MLII[s_peaks[i+1]:q_peaks[i+2]]
-            start_post_r = s_peaks[i+1]
-            
-    
-    p_properties = {
-        "peaks" : p_peaks,
-        "durations" : p_durations,
-        "prominences" : p_promi,
-        "height" : p_heights,
-        "amplitudes" : p_amps,
-        "areas" : p_areas,
-        "onset" : p_onset,
-        "offset" : p_offset
-    }
-    
-    t_properties = {
-        "peaks" : t_peaks,
-        "durations" : t_durations,
-        "prominences" : t_promi,
-        "height" : t_heights,
-        "amplitudes" : t_amps,
-        "areas" : t_areas,
-        "onset" : t_onset,
-        "offset" : t_offset
-    }
-        
-    return p_positives, p_negatives, p_properties, t_positives, t_negatives, t_properties
 
 
 
