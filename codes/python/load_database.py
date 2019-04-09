@@ -65,7 +65,7 @@ class Patient_record:
         self.T_points_properites = None#30
         self.T_neg_points = []#1
 
-        self.QRS_interval = None#1
+        self.QRS_interval = None#4
         self.rr_interval = None#4 done
         self.P_Q_interval = None#4
         self.neg_P_Q_interval = []#1
