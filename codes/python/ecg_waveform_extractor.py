@@ -761,11 +761,14 @@ def p_and_t_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_
             abs_peak=list(range(start_pre_r,end_pre_r))
             if(len(abs_peak) == 0):
                 p_pos = round((start_pre_r+end_pre_r)/2,0)
+                
             
             else:
                 left, right= sudo_k_mean(abs_peak, time, patient.filtered_MLII)
                 p_pos = highest_peak(right, patient.filtered_MLII)
-            
+                
+            onset = p_pos-5
+            offset = p_pos + 5
             p_positives.append(p_pos)
             
         
@@ -787,10 +790,14 @@ def p_and_t_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_
             abs_neg_peak=list(range(start_pre_r,end_pre_r))
             if(len(abs_neg_peak) == 0):
                 p_neg = round((start_pre_r+end_pre_r)/2,0)
+                
             
             else:
                 neg_left, neg_right = sudo_k_mean(abs_neg_peak, time, -patient.filtered_MLII)
                 p_neg = highest_peak(neg_right, patient.filtered_MLII)
+
+            onset_neg = p_neg-5
+            offset_neg = p_neg + 5
             p_negatives.append(p_neg)
         
         else:
@@ -870,7 +877,8 @@ def p_and_t_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_
                 t_pos = highest_peak(left, patient.filtered_MLII)
                 
            
-            
+            onset = t_pos-5
+            offset = t_pos + 5
             
             t_positives.append(t_pos)
             
@@ -896,6 +904,9 @@ def p_and_t_peak_properties_extractor(patient,time_limit_from_r=0.1,sample_from_
             else:
                 neg_left, neg_right= sudo_k_mean(abs_neg_peak, time, -patient.filtered_MLII)
                 t_neg = highest_peak(neg_left, patient.filtered_MLII)
+            
+            onset_neg = t_neg-5
+            offset_neg = t_neg + 5
             t_negatives.append(t_neg)
         
         else:

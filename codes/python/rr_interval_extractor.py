@@ -13,6 +13,8 @@ from math import *
 ##### Interval extractors
 
 
+def average(numbers):
+    return float(sum(numbers)) / len(numbers)    
 
 def pre_pos_rr_interval(record):
     pre_r = record.segmented_R_pos[0]
@@ -25,6 +27,7 @@ def pre_pos_rr_interval(record):
         current_r = record.segmented_R_pos[r]
         
         if(r < len(record.segmented_R_pos)-1):
+
             post_r = record.segmented_R_pos[r+1]
         else:
             post_r = current_r
@@ -57,7 +60,7 @@ def rr_average_by_sample(pre_rr_interval,ten=True,fifty=False, all=True):
                 
         if fifty == True:
             
-            rr_average_10=rr_local_average(pre_rr_interval,num_max_beat, i, 50)
+            rr_average_50=rr_local_average(pre_rr_interval,num_max_beat, i, 50)
             
             rr_fifty.append(rr_average_50)
 
@@ -78,3 +81,21 @@ def rr_local_average(pre_rr_interval,len_of_rr, pos, average_of_rr):
         rr_ave = average(pre_rr_interval[pos-half_ave:pos+(half_ave+1)])
     
     return rr_ave
+
+def rr_interval_and_average(record, ten=True,fifty=False, all_avg=True):
+    pre, post = pre_pos_rr_interval(record)
+    rr_ten, rr_fifty, rr_all = rr_average_by_sample(pre,ten,fifty, all_avg)
+
+    rr_properties = {
+        "pre" : pre,
+        "post" : post,
+        "average_ten" : rr_ten,
+        "average_fifty" : rr_fifty,
+        "average_all" : rr_all
+       
+    }
+
+    return rr_properties
+
+
+    
