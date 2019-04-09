@@ -28,8 +28,7 @@ from scipy import stats
 import warnings
 import termcolor as colored
 from math import*
-
-
+from codes.python import rr_interval_extractor as rr_int
 
  
 
@@ -48,8 +47,14 @@ DB2.set_Q_and_S_points()
 DB1.set_P_T_points()
 DB2.set_P_T_points()
 
+mit100 = DB2.patient_records[0]
+t_ecpu = np.asarray(mit100.annotated_t_waves_pos[0:7],dtype=int)
+wfdb.plot_items(signal = mit100.filtered_MLII[0:2000], ann_samp = [t_ecpu])
 
 
+pre_rr_interval, post_rr_interval = pre_pos_rr_interval(mit100)
+
+rr_ten, rr_fifty, rr_all = rr_average_by_sample(pre_rr_interval, fifty = True)
 
 columns = len(mit100.segmented_beat_time[0]) + len(mit100.segmented_beat_1[0])
 rows = 0
