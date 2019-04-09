@@ -28,24 +28,12 @@ from scipy import stats
 import warnings
 import termcolor as colored
 from math import*
-from codes.python import rr_interval_extractor as rr_int
 
  
 
-patient_list_1 = ["101","106","108","109","112","114","115","116","118","119","122","124","201","203","205","207","208","209","215","220","223","230"]
-patient_list_2 = ["100","103","105","111","113","117","121","123","200","202","210","212","213","214","219","221","222","228","231","232","233","234"]
-DB1 = load_database.create_ecg_database("mitdb",patient_list_1)
-DB2 = load_database.create_ecg_database("mitdb",patient_list_2)
-DB1.segment_beats()
-DB2.segment_beats()
-DB1.set_R_properties()
-DB2.set_R_properties()
+ 
 
-DB1.set_Q_and_S_points()
-DB2.set_Q_and_S_points()
 
-DB1.set_P_T_points()
-DB2.set_P_T_points()
 
 mit100 = DB2.patient_records[0]
 t_ecpu = np.asarray(mit100.annotated_t_waves_pos[0:7],dtype=int)

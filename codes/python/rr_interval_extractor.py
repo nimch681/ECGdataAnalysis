@@ -40,7 +40,7 @@ def pre_pos_rr_interval(record):
     return  pre_rr_interval, post_rr_interval
 
 
-def rr_average_by_sample(pre_rr_interval,ten=True,fifty=False, all=True):
+def rr_average_by_sample(pre_rr_interval,ten=True,fifty=True, all=True):
      
     rr_ten = []
     rr_fifty = []
@@ -82,7 +82,7 @@ def rr_local_average(pre_rr_interval,len_of_rr, pos, average_of_rr):
     
     return rr_ave
 
-def rr_interval_and_average(record, ten=True,fifty=False, all_avg=True):
+def rr_interval_and_average(record, ten=True,fifty=True, all_avg=True):
     pre, post = pre_pos_rr_interval(record)
     rr_ten, rr_fifty, rr_all = rr_average_by_sample(pre,ten,fifty, all_avg)
 

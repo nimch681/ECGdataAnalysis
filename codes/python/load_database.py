@@ -16,6 +16,8 @@ import math
 import wfdb
 from wfdb import processing
 from codes.python import ecg_waveform_extractor as waveform
+from codes.python import rr_interval_extractor as rr_int
+from codes.python import interval_extractor as interval
 
 
 # Show a 2D plot with the data in beat
@@ -199,6 +201,53 @@ class Patient_record:
         self.T_points_properites = t_properties
         self.T_neg_points = t_negatives
         print("Done proecessing: "+ self.filename)
+    
+    def set_rr_intervals(self,ten=True, fifty=True,all_avg=True):
+        print("Processing file: "+ self.filename)
+        if(self.filtered_MLII == []):
+            filter_FIR = denoise.ECG_FIR_filter()
+            signal_MLII = denoise.denoising_signal_FIR(self.MLII,filter_FIR)
+            self.filtered_MLII = signal_MLII
+            print("Filtered MLII records from : "+ self.filename)
+        
+        if(self.segmented_R_pos == []):
+            print("Finding R pos")
+            self.segmented_beat_class, self.segmented_class, self.segmented_R_pos, self.segmented_R_pos = hs.r_peak_and_annotation(self.filtered_MLII, self.annotations,list(range(0,len(self.filtered_MLII))))
+        
+        self.rr_interval =rr_int.rr_interval_and_average(self,ten, fifty,all_avg)
+        print("Done proecessing: "+ self.filename)
+    
+    def set_intervals_and_averages(self,ten=True, fifty=True,all_avg=False):
+        print("Processing file: "+ self.filename)
+        if(self.filtered_MLII == []):
+            filter_FIR = denoise.ECG_FIR_filter()
+            signal_MLII = denoise.denoising_signal_FIR(self.MLII,filter_FIR)
+            self.filtered_MLII = signal_MLII
+            print("Filtered MLII records from : "+ self.filename)
+        
+        if(self.segmented_R_pos == []):
+            print("Finding R pos")
+            self.segmented_beat_class, self.segmented_class, self.segmented_R_pos, self.segmented_R_pos = hs.r_peak_and_annotation(self.filtered_MLII, self.annotations,list(range(0,len(self.filtered_MLII))))
+        
+        QRS_properties, P_Q_properties, P_Q_neg, P_R_properties, P_R_neg, S_T_properties, S_T_neg,R_T_properties, R_T_neg, P_T_properties,neg_P_T, P_T_neg, neg_P_T_neg  =interval.interval_and_average(self,ten, fifty,all_avg) 
+         
+        self.QRS_interval = QRS_properties
+        self.P_Q_interval = P_Q_properties
+        self.neg_P_Q_interval = P_Q_neg
+        self.P_R_interval = P_R_properties
+        self.neg_P_R_interval = P_R_neg
+
+        self.S_T_interval = S_T_properties
+        self.neg_S_T_interval = S_T_neg
+        self.R_T_interval = R_T_properties
+        self.neg_R_T_interval = R_T_neg
+
+        self.P_T_interval = P_T_properties
+        self.neg_P_T_interval = neg_P_T
+        self.P_neg_T_interval = P_T_neg
+        self.neg_P_neg_T_interval = neg_P_T_neg
+        print("Done proecessing: "+ self.filename)
+
 
 
 
@@ -261,6 +310,22 @@ class ecg_database:
             record.set_P_T_points_MLII(time_limit_from_r,sample_from_point, to_area,to_savol, Order,window_len, left_limit,right_limit, distance, width,plateau_size)
  
         print("Done Setting P and T properties")
+    
+    def set_rr_intervals(self,ten=True,fifty=True, all_avg=True):
+
+        
+        for record in self.patient_records:
+            record.set_rr_intervals(ten,fifty, all_avg) 
+ 
+        print("Done Setting RR_intervals")
+    
+    def set_intervals(self,ten=True,fifty=True, all_avg=True):
+
+        
+        for record in self.patient_records:
+            record.set_intervals_and_averages(ten,fifty, all_avg) 
+ 
+        print("Done Setting all intervals")
 
 
     
