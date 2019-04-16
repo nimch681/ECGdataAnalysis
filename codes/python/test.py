@@ -35,11 +35,10 @@ QRS_properties, P_Q_properties, P_Q_neg, P_R_properties, P_R_neg, S_T_properties
 
 #####################################
 
-mit100 = DB2.patient_records[0]
 
 
 
-columns = (13*7) + 4 + (3*6) +7
+columns = (13*7) + 5 + (3*6) +7
 rows = len(mit100.segmented_R_pos)
 
 
@@ -73,20 +72,108 @@ for patient in DB2.patient_records:
                 #print(DBn1[row_count])
                 row_count += 1
 
-for i in range(0,len(mit100.segmented_beat_time)):
+
+patient = mit100
+for i in range(0,len(patient.segmented_beat_time)):
                
     row = list()
-    row.extend(patient.segmented_beat_time[i])
+    row.extend(patient.R_pos_properites["durations"][i])
+    row.extend(patient.R_pos_properites["height"][i])
+    row.extend(patient.R_pos_properites["amplitudes"][i])
+    row.extend(patient.R_pos_properites["prominences"][i])
+
+    row.extend(patient.Q_points_properites["durations"][i])
+    row.extend(patient.Q_points_properites["height"][i])
+    row.extend(patient.Q_points_properites["amplitudes"][i])
+    row.extend(patient.Q_points_properites["prominences"][i])
+
+    row.extend(patient.S_points_properites["durations"][i])
+    row.extend(patient.S_points_properites["height"][i])
+    row.extend(patient.S_points_properites["amplitudes"][i])
+    row.extend(patient.S_points_properites["prominences"][i])
+
+    p_durations=np.asarray(patient.P_points_properites["durations"])
+    p_height=np.asarray(patient.P_points_properites["height"])
+    p_amplitudes=np.asarray(patient.P_points_properites["amplitudes"])
+    p_prominence = np.asarray(patient.P_points_properites["prominences"])
+
+
+    row.extend(p_durations[i,0])
+    row.extend(p_height[i,0])
+    row.extend(p_amplitudes[i,0])
+    row.extend(p_prominence[i,0])
+
+    row.extend(p_durations[i,1])
+    row.extend(p_height[i,1])
+    row.extend(p_amplitudes[i,1])
+    row.extend(p_prominence[i,1])
+
+    t_durations=np.asarray(patient.T_points_properites["durations"])
+    t_height=np.asarray(patient.T_points_properites["height"])
+    t_amplitudes=np.asarray(patient.T_points_properites["amplitudes"])
+    t_prominence = np.asarray(patient.T_points_properites["prominences"])
+
+
+    row.extend(t_durations[i,0])
+    row.extend(t_height[i,0])
+    row.extend(t_amplitudes[i,0])
+    row.extend(t_prominence[i,0])
+
+    row.extend(t_durations[i,1])
+    row.extend(t_height[i,1])
+    row.extend(t_amplitudes[i,1])
+    row.extend(t_prominence[i,1])
+
+    row.extend(patient.rr_interval["pre"][i])
+    row.extend(patient.rr_interval["post"][i])
+    row.extend(patient.rr_interval["average_ten"][i])
+    row.extend(patient.rr_interval["average_fifty"][i])
+    row.extend(patient.rr_interval["average_all"][i])
+
+    row.extend(patient.QRS_interval["interval"][i])
+    row.extend(patient.QRS_interval["paverage_ten"][i])
+    row.extend(patient.QRS_interval["average_fifty"][i])
+
+    row.extend(patient.P_Q_interval["interval"][i])
+    row.extend(patient.P_Q_interval["paverage_ten"][i])
+    row.extend(patient.P_Q_interval["average_fifty"][i])
+
+    row.extend(patient.P_R_interval["interval"][i])
+    row.extend(patient.P_R_interval["paverage_ten"][i])
+    row.extend(patient.P_R_interval["average_fifty"][i])
+
+    row.extend(patient.S_T_interval["interval"][i])
+    row.extend(patient.S_T_interval["paverage_ten"][i])
+    row.extend(patient.S_T_interval["average_fifty"][i])
+
+    row.extend(patient.R_T_interval["interval"][i])
+    row.extend(patient.R_T_interval["paverage_ten"][i])
+    row.extend(patient.R_T_interval["average_fifty"][i])
+
+    row.extend(patient.P_T_interval["interval"][i])
+    row.extend(patient.P_T_interval["paverage_ten"][i])
+    row.extend(patient.P_T_interval["average_fifty"][i])
+
+    row.extend(patient.neg_P_Q_interval[i])
+    row.extend(patient.neg_P_R_interval[i])
+    row.extend(patient.neg_S_T_interval[i])
+    row.extend(patient.neg_R_T_interval[i])
+    row.extend(patient.neg_P_T_interval[i])
+    row.extend(patient.P_neg_T_interval[i])
+    row.extend(patient.neg_P_neg_T_interval[i])
+    
+
+    
     #time_lens.append(len(patient.segmented_beat_time[i]))
-    row.extend(patient.segmented_beat_1[i])
+    #row.extend(mit100.segmented_beat_1[i])
     #beats_lens.append(len(patient.segmented_beat_1[i]))
         #if (len(patient.segmented_beat_1[i]) == 347):
             #print(patient.filename)
             #print(i)
             #mit207 = patient
                 
-    y[row_count] = patient.segmented_class_ID[i]
-    x[row_count,0:columns] = row
+    y[i] = patient.segmented_class_ID[i]
+    x[i,0:columns] = row
 
     #print(DBn1[row_count])
-    row_count += 1
+    
