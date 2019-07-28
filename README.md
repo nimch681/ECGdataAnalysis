@@ -1,5 +1,5 @@
 # ECGdataAnalysis
-
+## These are old files I moved it all to https://github.com/nimch681/feature_selection_ECG
 Master project for analysing ECG data using machine learning techniques.
 Started in July 2018. 
 Purpose for the project was to learn and improve on aspects of current ECG analysis techniques.
